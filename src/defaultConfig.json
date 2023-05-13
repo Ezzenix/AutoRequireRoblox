@@ -1,0 +1,9 @@
+{
+    "ModuleName": "ReplicatedStorage/Library",
+    "RojoProject": "default.project",
+
+    "ClientRestricted": ["StarterPlayerScripts"],
+    "ServerRestricted": ["ServerScriptService"],
+
+    "IndexedFolders": ["ReplicatedStorage/Utils"]
+}
