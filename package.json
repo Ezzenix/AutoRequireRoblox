@@ -1,8 +1,13 @@
 {
-    "name": "luna",
-    "displayName": "Luna",
+    "name": "luna-roblox",
+    "displayName": "Luna Roblox",
     "description": "",
     "version": "0.0.1",
+    "icon": "assets/Luna.png",
+    "publisher": "Ezzenix",
+    "keywords": [
+        "roblox"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/Ezzenix/Luna"
