@@ -1,10 +1,9 @@
 const vscode = require("vscode");
-
 const Session = require("./classes/session.js");
 
 var sessions = [];
 
-async function initialize(workspace, autoStart) {
+function initialize(workspace, autoStart) {
     // For example: workspace = /c:/Users/Anton/Desktop/Dev
 
     // Attempt to find a workspace if none has been provided
@@ -35,12 +34,12 @@ async function initialize(workspace, autoStart) {
     return session;
 }
 
-async function activate(context) {
+function activate(context) {
     // Quietly attempt to initialize a new session on activation
     initialize(undefined, false);
 
     // Initialize startCommand
-    const startCommand = vscode.commands.registerCommand("modulehelper.start", async () => {
+    const startCommand = vscode.commands.registerCommand("modulehelper.start", () => {
         const activeTextEditor = vscode.window.activeTextEditor;
         if (!activeTextEditor) return vscode.window.showErrorMessage("No active text editor!");
 

@@ -1,6 +1,7 @@
 {
-    "name": "modulehelper",
-    "displayName": "modulehelper",
+	"type":"module",
+    "name": "luna",
+    "displayName": "Luna",
     "description": "",
     "version": "0.0.1",
     "engines": {
@@ -16,8 +17,8 @@
     "contributes": {
         "commands": [
             {
-                "command": "modulehelper.start",
-                "title": "Start Roblox ModuleHelper"
+                "command": "luna.menu",
+                "title": "Luna: Open Menu"
             }
         ]
     },
