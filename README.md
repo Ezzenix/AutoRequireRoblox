@@ -1,7 +1,6 @@
 <div align="center">
-	<img src="assets/Luna.png" alt="Luna" height="250">
+	<img src="assets/Luna.png" alt="Luna" height="180">
 </div>
-
 <hr />
 
 ### Features
