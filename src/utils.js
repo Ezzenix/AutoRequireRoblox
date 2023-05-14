@@ -1,10 +1,10 @@
 const fs = require("fs");
 
-function ReadFile(path) {
+function ReadFile(path, doNotParse) {
     path = path.replace(/\//g, "\\");
     try {
         const contents = fs.readFileSync(path);
-        if (path.endsWith(".json")) {
+        if (path.endsWith(".json") && !doNotParse) {
             return JSON.parse(contents);
         } else {
             return contents;
@@ -20,6 +20,7 @@ function WriteFile(path, contents) {
         fs.writeFileSync(path, contents, `utf8`);
         return true;
     } catch (err) {
+        console.warn(`Failed to write ${path}: ${err}`);
         return false;
     }
 }

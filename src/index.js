@@ -1,5 +1,6 @@
 const vscode = require("vscode");
 const Session = require("./classes/session.js");
+const utils = require("./utils.js");
 
 var sessions = [];
 
@@ -11,7 +12,7 @@ function initialize(workspace, autoStart) {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders && !workspaceFolders[0]) {
             if (!autoStart) {
-                vscode.window.showErrorMessage("Failed to find workspace.");
+                vscode.window.showErrorMessage("Could not find workspace.");
             }
             return;
         }
@@ -21,11 +22,10 @@ function initialize(workspace, autoStart) {
     var session;
 
     try {
-        session = new Session(workspace, true);
+        session = new Session(workspace, autoStart);
     } catch (err) {
-        console.warn(err);
         if (!autoStart) {
-            vscode.window.showErrorMessage(err);
+            vscode.window.showErrorMessage(err.message);
         }
         return;
     }
@@ -34,37 +34,66 @@ function initialize(workspace, autoStart) {
     return session;
 }
 
+function removeSession(workspace) {
+    let session = sessions[workspace];
+    if (session) {
+        session.cleanup();
+        delete sessions[workspace];
+    }
+}
+
 function activate(context) {
     // Quietly attempt to initialize a new session on activation
-    initialize(undefined, false);
+    initialize(undefined, true);
 
-    // Initialize startCommand
-    const startCommand = vscode.commands.registerCommand("modulehelper.start", () => {
+    function openMenu() {
+        // Get the workspace
         const activeTextEditor = vscode.window.activeTextEditor;
-        if (!activeTextEditor) return vscode.window.showErrorMessage("No active text editor!");
-
+        if (!activeTextEditor) return;
         const documentUri = activeTextEditor.document.uri;
         const workspaceFolder = vscode.workspace.getWorkspaceFolder(documentUri);
-        if (!workspaceFolder) return vscode.window.showErrorMessage("No active workspace!");
+        if (!workspaceFolder) return;
         const workspace = workspaceFolder.uri.fsPath;
 
-        var existingSession = sessions[workspace];
-        var isRestart = false;
-        if (existingSession) {
-            isRestart = true;
-            existingSession.cleanup();
-            sessions[workspace] = undefined;
-        }
+        // Create menu
+        const action = sessions[workspace] ? "Stop" : "Start";
 
-        const session = initialize(workspace, false);
-        if (session) {
-            vscode.window.showInformationMessage(`${isRestart ? "Restarted" : "Started"} ModuleHelper`);
-        }
+        const menu = vscode.window.createQuickPick();
+        menu.items = [
+            { label: "Luna", description: `v${require("../package.json").version}` },
+            { label: `${action} Luna` },
+        ];
+
+        menu.onDidHide(() => menu.dispose());
+
+        menu.onDidChangeSelection((selection) => {
+            selection = selection[0];
+            if (!selection || selection.label == "Luna") return;
+            menu.hide();
+
+            switch (selection.label) {
+                case "Start Luna":
+                    initialize(workspace, false);
+                    break;
+
+                case "Stop Luna":
+                    removeSession(workspace);
+                    break;
+            }
+
+            setTimeout(openMenu, 50);
+        });
+
+        menu.show();
+    }
+
+    // Initialize startCommand
+    const disposable = vscode.commands.registerCommand("luna.menu", () => {
+        openMenu();
     });
-    context.subscriptions.push(startCommand);
 
-    // Activated
-    console.log("modulehelper activated");
+    context.subscriptions.push(disposable);
+    console.log("luna activated");
 }
 
 function deactivate() {
