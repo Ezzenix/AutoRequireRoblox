@@ -10,7 +10,7 @@
 You have to use [Rojo](https://rojo.space/) in your project for this to work.\
 For intellisene you have to use something like [Roblox LSP](https://github.com/NightrainsRbx/RobloxLsp).
 
-1. Install the extension [here](https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley).
+1. Install the extension [here](https://marketplace.visualstudio.com/items?itemName=Ezzenix.luna-roblox).
 2. Run the '**Luna: Open Menu**' command.
 3. Select '**Start Luna**' and a configuration file will be generated for you to edit. See below for information about the config.
 4. After customizing the configuration select '**Start Luna**' again to start it.
