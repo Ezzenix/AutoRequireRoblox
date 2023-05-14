@@ -1,9 +1,13 @@
 {
-	"type":"module",
+    "type": "module",
     "name": "luna",
     "displayName": "Luna",
     "description": "",
     "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Ezzenix/Luna"
+    },
     "engines": {
         "vscode": "^1.78.0"
     },
