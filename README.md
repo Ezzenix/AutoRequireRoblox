@@ -7,12 +7,10 @@
 ### Features
 **Luna** creates a module containing all your modules and keeps it updated as you edit your project. It works as a 'module loader' but with intellisense.
 
-#
 ### Important
 You have to use [Rojo](https://rojo.space/) in your project for this to work.\
 For intellisene you have to use something like [Roblox LSP](https://github.com/NightrainsRbx/RobloxLsp).
 
-#
 ### How to use
 
 1. Install the extension [here](https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley).
@@ -21,7 +19,7 @@ For intellisene you have to use something like [Roblox LSP](https://github.com/N
 4. After customizing the configuration select '**Start Luna**' again to start it.
 5. You can now start using it!
 
-
+\
 **Example:**
 
 ```lua
@@ -32,7 +30,7 @@ local Library = require(game:GetService("ReplicatedStorage").Library)
 Library.MyModule.Say("Hello") -- This will now have intellisense unlike 'normal' module loaders.
 ```
 
-#
+
 ### Config
 
 |Name|Description|Default|
@@ -46,11 +44,9 @@ Library.MyModule.Say("Hello") -- This will now have intellisense unlike 'normal'
 ###### Paths in the config are file paths in your project, not game paths.
 ###### After configuring your project the extension will automatically start when you open it the next time.
 
-#
 ### Ideas
 - [ ] Automatic dependency checking to require the modules in the correct order.
 
-#
 ### Contact
 
 If you need help you can add me on discord **Ezzenix#5500**.
