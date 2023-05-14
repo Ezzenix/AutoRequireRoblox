@@ -5,10 +5,10 @@
 ### About
 **Luna** creates a module containing all your modules and keeps it updated as you edit your project. It works as a 'module loader' but with intellisense.
 
-**You have to use [Rojo](https://rojo.space/) in your project for this to work.\
-For intellisene you have to use something like [Roblox LSP](https://github.com/NightrainsRbx/RobloxLsp).**
-
 ### Getting Started
+
+You have to use [Rojo](https://rojo.space/) in your project for this to work.\
+For intellisene you have to use something like [Roblox LSP](https://github.com/NightrainsRbx/RobloxLsp).
 
 1. Install the extension [here](https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley).
 2. Run the '**Luna: Open Menu**' command.
@@ -28,13 +28,13 @@ Library.MyModule.Say("Hello") -- This will now have intellisense unlike 'normal'
 ```
 
 ### Config
-|Name|Description|Default|
+|Option|Description|Default Value|
 |-|-|-|
-|ModuleName|The path of the module to insert into, created automatically|"ReplicatedStorage/Library"|
-|RojoProject|The name of your rojo project, usually default.project|"default.project"|
-|ClientRestricted|Directories that are only required client-side.|["StarterPlayerScripts"]|
-|ServerRestricted|Directories that are only required server-side.|["ServerScriptService"]|
-|IndexedFolders|Directories that will be put in their own category.|["ReplicatedStorage/Utils"]|
+|ModuleName|Path of the generated module, automatically created|"ReplicatedStorage/Library"|
+|RojoProject|Name of your rojo project|"default.project"|
+|ClientRestricted|Directories for client only|["StarterPlayerScripts"]|
+|ServerRestricted|Directories for server only|["ServerScriptService"]|
+|IndexedFolders|Directories to put in their own category|["ReplicatedStorage/Utils"]|
 ###### Paths in the config are file paths in your project, not game paths.
 ###### After configuring your project the extension will automatically start when you open it the next time.
 

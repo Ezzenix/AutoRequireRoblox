@@ -1,6 +1,9 @@
 const vscode = require("vscode");
+const pathModule = require("path");
 const Session = require("./classes/session.js");
 const utils = require("./utils.js");
+
+const version = require("../package.json").version;
 
 var sessions = [];
 
@@ -57,11 +60,25 @@ function activate(context) {
 
         // Create menu
         const action = sessions[workspace] ? "Stop" : "Start";
+        const actionText =
+            action == "Start"
+                ? "Luna is not currently running. Select to start it."
+                : "Luna is running in this project. Select to stop it.";
 
         const menu = vscode.window.createQuickPick();
         menu.items = [
-            { label: "Luna", description: `v${require("../package.json").version}` },
-            { label: `${action} Luna` },
+            {
+                label: "Luna",
+                detail: `You are using version ${version}`,
+            },
+            {
+                label: `${action} Luna`,
+                detail: actionText,
+            },
+            {
+                label: `View on GitHub`,
+                detail: `Open the GitHub page for help.`,
+            },
         ];
 
         menu.onDidHide(() => menu.dispose());
@@ -74,14 +91,18 @@ function activate(context) {
             switch (selection.label) {
                 case "Start Luna":
                     initialize(workspace, false);
+                    setTimeout(openMenu, 50);
                     break;
 
                 case "Stop Luna":
                     removeSession(workspace);
+                    setTimeout(openMenu, 50);
+                    break;
+
+                case "View on GitHub":
+                    vscode.env.openExternal(vscode.Uri.parse("https://github.com/Ezzenix/Luna"));
                     break;
             }
-
-            setTimeout(openMenu, 50);
         });
 
         menu.show();
