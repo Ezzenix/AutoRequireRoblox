@@ -1,11 +1,17 @@
-const vscode = require("vscode");
-const utils = require("../utils.js");
-const pathModule = require("path");
+import * as vscode from "vscode";
+import * as utils from "../utils.js";
+import * as pathModule from "path";
 
 const defaultConfigPath = pathModule.resolve(__dirname, "..", "defaultConfig.json");
 const defaultConfig = utils.ReadFile(defaultConfigPath, true);
 
-class Session {
+export class Session {
+    workspace: string;
+    config: any;
+    rojoConfig: any;
+    rojoMap: any;
+    watcher: any;
+
     constructor(workspace, autoStart) {
         this.workspace = workspace;
 
@@ -56,18 +62,18 @@ class Session {
         this.watcher.dispose();
     }
 
-    writeFile(path, contents) {
+    writeFile(path: string, contents: string) {
         return utils.WriteFile(`${this.workspace}/${path}`, contents);
     }
-    readFile(path) {
+    readFile(path: string) {
         return utils.ReadFile(`${this.workspace}/${path}`);
     }
-    fileExists(path) {
+    fileExists(path: string) {
         return utils.FileExists(`${this.workspace}/${path}`);
     }
 
     // Refreshes everything
-    refresh(uri) {
+    refresh(uri?: vscode.Uri) {
         if (uri && uri.path.endsWith(`/src/${this.config.ModuleName}.lua`)) return; // don't detect changes on own module
 
         const workspace = this.workspace;
@@ -116,7 +122,7 @@ class Session {
                     }
 
                     // check client / server restricted
-                    var restricted = false;
+                    var restricted: boolean | string = false;
                     config.ServerRestricted.forEach((directoryPath) => {
                         directoryPath = directoryPath.replace(/\//g, "\\");
                         if (fileIsIn(directoryPath)) {
@@ -155,5 +161,3 @@ class Session {
         this.writeFile(`src/${config.ModuleName}.lua`, lines.join(`\n`));
     }
 }
-
-module.exports = Session;

@@ -1,19 +1,20 @@
-const vscode = require("vscode");
-const pathModule = require("path");
-const Session = require("./classes/session.js");
-const utils = require("./utils.js");
+import * as vscode from "vscode";
+import * as pathModule from "path";
+import { Session } from "./classes/session";
+import * as Utils from "./utils";
 
-const version = require("../package.json").version;
+const packageJson = Utils.ReadFile(pathModule.join(__dirname, "package.json"));
+const version = packageJson ? packageJson.version : "<unknown>";
 
-var sessions = [];
+var sessions: any = [];
 
-function initialize(workspace, autoStart) {
-    // For example: workspace = /c:/Users/Anton/Desktop/Dev
+function initialize(workspace?: string, autoStart?: boolean) {
+    // For example: workspace = /c:/Users/_/Desktop/Dev
 
-    // Attempt to find a workspace if none has been provided
+    // Attempt to find a workspace if none was provided
     if (!workspace) {
         const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders && !workspaceFolders[0]) {
+        if (!workspaceFolders || !workspaceFolders[0]) {
             if (!autoStart) {
                 vscode.window.showErrorMessage("Could not find workspace.");
             }
@@ -22,22 +23,23 @@ function initialize(workspace, autoStart) {
         workspace = workspaceFolders[0].uri.fsPath;
     }
 
+    // Make a new session
     var session;
-
     try {
         session = new Session(workspace, autoStart);
-    } catch (err) {
+    } catch (err: any) {
         if (!autoStart) {
             vscode.window.showErrorMessage(err.message);
         }
         return;
     }
 
+    // Store the session and return it
     sessions[workspace] = session;
     return session;
 }
 
-function removeSession(workspace) {
+function removeSession(workspace: string) {
     let session = sessions[workspace];
     if (session) {
         session.cleanup();
@@ -45,7 +47,7 @@ function removeSession(workspace) {
     }
 }
 
-function activate(context) {
+export function activate(context: vscode.ExtensionContext) {
     // Quietly attempt to initialize a new session on activation
     initialize(undefined, true);
 
@@ -70,6 +72,10 @@ function activate(context) {
             {
                 label: "Luna",
                 detail: `You are using version ${version}`,
+                //iconPath: {
+                //    dark: Uri.file(pathModule.join(__dirname, "..", "assets", "Moon_128.png")),
+                //    light: Uri.file(pathModule.join(__dirname, "..", "assets", "Moon_128.png")),
+                //},
             },
             {
                 label: `${action} Luna`,
@@ -81,14 +87,14 @@ function activate(context) {
             },
         ];
 
-        menu.onDidHide(() => menu.dispose());
-
         menu.onDidChangeSelection((selection) => {
-            selection = selection[0];
-            if (!selection || selection.label == "Luna") return;
+            if (selection.length <= 0) return;
+            const selectedItem: vscode.QuickPickItem = selection[0];
+
+            if (!selectedItem || selectedItem.label == "Luna") return;
             menu.hide();
 
-            switch (selection.label) {
+            switch (selectedItem.label) {
                 case "Start Luna":
                     initialize(workspace, false);
                     setTimeout(openMenu, 50);
@@ -105,6 +111,7 @@ function activate(context) {
             }
         });
 
+        menu.onDidHide(() => menu.dispose());
         menu.show();
     }
 
@@ -117,17 +124,9 @@ function activate(context) {
     console.log("luna activated");
 }
 
-function deactivate() {
+export function deactivate() {
+    // Remove all sessions
     for (let workspace in sessions) {
-        var session = sessions[workspace];
-        if (session) {
-            session.cleanup();
-        }
+        removeSession(workspace);
     }
-    sessions = [];
 }
-
-module.exports = {
-    activate,
-    deactivate,
-};

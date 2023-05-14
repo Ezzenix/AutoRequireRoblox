@@ -1,20 +1,22 @@
-const fs = require("fs");
+import * as fs from "fs";
 
-function ReadFile(path, doNotParse) {
+export function ReadFile(path: string, doNotParse = false) {
     path = path.replace(/\//g, "\\");
     try {
         const contents = fs.readFileSync(path);
-        if (path.endsWith(".json") && !doNotParse) {
-            return JSON.parse(contents);
-        } else {
-            return contents;
+        if (contents) {
+            if (path.endsWith(".json") && !doNotParse) {
+                return JSON.parse(contents.toString());
+            } else {
+                return contents.toString();
+            }
         }
     } catch (err) {
         return;
     }
 }
 
-function WriteFile(path, contents) {
+export function WriteFile(path: string, contents: string) {
     path = path.replace(/\//g, "\\");
     try {
         fs.writeFileSync(path, contents, `utf8`);
@@ -25,7 +27,7 @@ function WriteFile(path, contents) {
     }
 }
 
-function FileExists(path) {
+export function FileExists(path: string) {
     path = path.replace(/\//g, "\\");
     try {
         fs.accessSync(path);
@@ -35,7 +37,7 @@ function FileExists(path) {
     }
 }
 
-function FileStat(path) {
+export function FileStat(path: string) {
     path = path.replace(/\//g, "\\");
     try {
         const stat = fs.statSync(path);
@@ -45,7 +47,7 @@ function FileStat(path) {
     }
 }
 
-function MapRojoTree(rojoTree) {
+export function MapRojoTree(rojoTree: any) {
     const rojoMap = {};
     function traverse(obj, parentPath = "") {
         for (let key in obj) {
@@ -64,12 +66,12 @@ function MapRojoTree(rojoTree) {
     return rojoMap;
 }
 
-function BuildFileMap(rootPath) {
+export function BuildFileMap(rootPath: any) {
     rootPath = rootPath.replace(/\//g, "\\");
 
     const map = [];
 
-    function traverse(path, m, parent = undefined) {
+    function traverse(path: string, m, parent = undefined) {
         const files = fs.readdirSync(path);
 
         for (const fileName of files) {
@@ -136,7 +138,7 @@ function BuildFileMap(rootPath) {
     return map;
 }
 
-function GetInGamePath(path, rojoMap) {
+export function GetInGamePath(path: string, rojoMap: any) {
     path = path.replace(/\\/g, "/");
 
     // remove everything before until src
@@ -172,13 +174,3 @@ function GetInGamePath(path, rojoMap) {
     split.shift();
     return split.length > 0 ? `${service}.${split.join(".")}` : service;
 }
-
-module.exports = {
-    ReadFile: ReadFile,
-    WriteFile: WriteFile,
-    FileStat: FileStat,
-    FileExists: FileExists,
-    GetInGamePath: GetInGamePath,
-    MapRojoTree: MapRojoTree,
-    BuildFileMap: BuildFileMap,
-};
