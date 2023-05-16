@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as utils from "../utils.js";
+import * as utils from "./utils.js";
 import * as pathModule from "path";
 
 const defaultConfigPath = pathModule.resolve(__dirname, "..", "defaultConfig.json");
@@ -101,7 +101,7 @@ export class Session {
                 if (file.type == "module") {
                     if (file.path == `${workspace}/src/${config.ModuleName}.lua`.replace(/\//g, "\\")) return; // don't add self
 
-                    const inGamePath = `${utils.GetInGamePath(file.path, rojoMap)}.${file.name}`;
+                    const inGamePath = `${utils.GetGamePath(file.path, rojoMap)}.${file.name}`;
 
                     function fileIsIn(directoryPath) {
                         directoryPath = `${workspace}/src/${directoryPath}`.replace(/\//g, "\\");
@@ -123,23 +123,19 @@ export class Session {
 
                     // check client / server restricted
                     var restricted: boolean | string = false;
-                    config.ServerRestricted.forEach((directoryPath) => {
-                        directoryPath = directoryPath.replace(/\//g, "\\");
-                        if (fileIsIn(directoryPath)) {
-                            restricted = "Server";
-                        }
-                    });
-                    config.ClientRestricted.forEach((directoryPath) => {
+                    function checkRestriction(directoryPath: string, side: string) {
                         directoryPath = directoryPath.replace(/\//g, "\\");
                         if (fileIsIn(directoryPath)) {
                             if (restricted) {
-                                // restricted to both server and client so it is shared (dont do anything extra with it)
+                                // restricted to both, so it is shared
                                 restricted = false;
                                 return;
                             }
-                            restricted = "Client";
+                            restricted = side;
                         }
-                    });
+                    }
+                    config.ServerRestricted.forEach((directoryPath) => checkRestriction(directoryPath, "Server"));
+                    config.ClientRestricted.forEach((directoryPath) => checkRestriction(directoryPath, "Client"));
 
                     let line = `modules.${index ? index + "." : ""}${file.name} = require(${inGamePath})`;
                     if (restricted) {

@@ -1,5 +1,10 @@
 import * as fs from "fs";
+import * as vscode from "vscode";
 
+/*
+	Reads the file at the given path
+	Automatically parses .json if 'doNotParse' is not true
+*/
 export function ReadFile(path: string, doNotParse = false) {
     path = path.replace(/\//g, "\\");
     try {
@@ -16,6 +21,9 @@ export function ReadFile(path: string, doNotParse = false) {
     }
 }
 
+/*
+	Writes to the file at the given path
+*/
 export function WriteFile(path: string, contents: string) {
     path = path.replace(/\//g, "\\");
     try {
@@ -27,6 +35,9 @@ export function WriteFile(path: string, contents: string) {
     }
 }
 
+/*
+	Returns true or false depending on if a file exists
+*/
 export function FileExists(path: string) {
     path = path.replace(/\//g, "\\");
     try {
@@ -37,6 +48,9 @@ export function FileExists(path: string) {
     }
 }
 
+/*
+	Gets the stat of a file at the given path
+*/
 export function FileStat(path: string) {
     path = path.replace(/\//g, "\\");
     try {
@@ -47,6 +61,22 @@ export function FileStat(path: string) {
     }
 }
 
+/*
+	Gets the workspace of the active editor
+*/
+export function GetActiveWorkspace() {
+    const activeTextEditor = vscode.window.activeTextEditor;
+    if (!activeTextEditor) return;
+    const documentUri = activeTextEditor.document.uri;
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(documentUri);
+    if (!workspaceFolder) return;
+    return workspaceFolder.uri.fsPath;
+}
+
+/*
+	Converts the rojo tree to a easier form
+	["filePath"] = "gamePath"
+*/
 export function MapRojoTree(rojoTree: any) {
     const rojoMap = {};
     function traverse(obj, parentPath = "") {
@@ -66,6 +96,10 @@ export function MapRojoTree(rojoTree: any) {
     return rojoMap;
 }
 
+/*
+	Creates a 'map' of the files at the given directory
+	Works with folders and modules that use 'init.lua' 
+*/
 export function BuildFileMap(rootPath: any) {
     rootPath = rootPath.replace(/\//g, "\\");
 
@@ -138,7 +172,10 @@ export function BuildFileMap(rootPath: any) {
     return map;
 }
 
-export function GetInGamePath(path: string, rojoMap: any) {
+/*
+	Gets the gamePath from filePath
+*/
+export function GetGamePath(path: string, rojoMap: any) {
     path = path.replace(/\\/g, "/");
 
     // remove everything before until src

@@ -41,8 +41,8 @@ Library.MyModule.Say("Hello") -- This will now have intellisense unlike 'normal'
 |ServerRestricted|Directories for server only|["ServerScriptService"]|
 |IndexedFolders|Directories to put in their own category|["ReplicatedStorage/Utils"]|
 
-###### Paths in the config are file paths in your project, not game paths.
-###### After configuring your project the extension will automatically start when you open it the next time.
+<font size=2>Paths in the config are file paths in your project, not game paths.\
+After configuring your project the extension will automatically start when you open it the next time.</font>
 
 &nbsp;
 
