@@ -21,14 +21,32 @@
     "activationEvents": [
         "onStartupFinished"
     ],
-    "main": "out/index.js",
+    "main": "out/extension.js",
     "contributes": {
         "commands": [
             {
                 "command": "luna.menu",
-                "title": "Luna: Open Menu"
+                "title": "Open Menu",
+                "category": "Luna"
             }
-        ]
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "lunaSidebarTab",
+                    "title": "Luna",
+                    "icon": "./assets/Moon_128.png"
+                }
+            ]
+        },
+        "views": {
+            "lunaSidebarTab": [
+                {
+                    "id": "lunaTreeView",
+                    "name": "Editor"
+                }
+            ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

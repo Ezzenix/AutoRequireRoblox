@@ -5,5 +5,17 @@
     "ClientRestricted": ["StarterPlayerScripts"],
     "ServerRestricted": ["ServerScriptService"],
 
-    "IndexedFolders": ["ReplicatedStorage/Utils"]
+    "IndexedFolders": ["ReplicatedStorage/Utils"],
+
+    "Directories": [
+        {
+            "path": "*",
+            "restricted": false
+        },
+        {
+            "path": "ReplicatedStorage/Utils",
+            "restricted": false,
+            "makeCategory": true
+        }
+    ]
 }

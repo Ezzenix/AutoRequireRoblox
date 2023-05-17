@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Session } from "./session";
 
-var Sessions: Session[] = [];
+var Sessions: { [index: string]: Session } = {};
 
 export function Start(workspace: string, isAutoStart?: boolean) {
     // For example: workspace = /c:/Users/_/Desktop/Dev
@@ -49,7 +49,7 @@ export function Get(workspace: string): Session {
     return Sessions[workspace];
 }
 
-export function GetAll(): Session[] {
+export function GetAll(): { [index: string]: Session } {
     return Sessions;
 }
 
