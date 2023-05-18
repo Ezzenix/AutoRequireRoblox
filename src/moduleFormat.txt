@@ -16,9 +16,11 @@ coroutine.wrap(function()
 	local function traverse(array, funcName)
 		for _, v in array do
 			if typeof(v) == "table" then
-				if v[funcName] then
-					v[funcName]()
-				end
+				pcall(function()
+					if v[funcName] then
+						v[funcName]()
+					end
+				end)
 				traverse(v)
 			end
 		end
