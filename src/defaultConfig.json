@@ -1,21 +1,26 @@
 {
-    "ModuleName": "ReplicatedStorage/Library",
-    "RojoProject": "default.project",
+	"modulePath": "ReplicatedStorage/Library",
+	"rojoProject": "default.project",
+	"variableName": "Library",
 
-    "ClientRestricted": ["StarterPlayerScripts"],
-    "ServerRestricted": ["ServerScriptService"],
-
-    "IndexedFolders": ["ReplicatedStorage/Utils"],
-
-    "Directories": [
-        {
-            "path": "*",
-            "restricted": false
-        },
-        {
-            "path": "ReplicatedStorage/Utils",
-            "restricted": false,
-            "makeCategory": true
-        }
-    ]
+	"directories": [
+		{
+			"path": "ReplicatedStorage/Utils",
+			"restricted": false,
+			"makeCategory": true,
+			"loadOrder": 1
+		},
+		{
+			"path": "ServerScriptService",
+			"restricted": "SERVER",
+			"makeCategory": false,
+			"loadOrder": 2
+		},
+		{
+			"path": "StarterPlayer",
+			"restricted": "CLIENT",
+			"makeCategory": false,
+			"loadOrder": 3
+		}
+	]
 }
