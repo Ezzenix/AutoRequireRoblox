@@ -2,7 +2,7 @@
 	"name": "luna-roblox",
 	"displayName": "Luna Roblox",
 	"description": "",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"icon": "assets/Moon_128.png",
 	"publisher": "Ezzenix",
 	"keywords": [
@@ -29,24 +29,7 @@
 				"title": "Open Menu",
 				"category": "Luna"
 			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "lunaSidebarTab",
-					"title": "Luna",
-					"icon": "./assets/Moon_128.png"
-				}
-			]
-		},
-		"views": {
-			"lunaSidebarTab": [
-				{
-					"id": "lunaTreeView",
-					"name": "Editor"
-				}
-			]
-		}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
