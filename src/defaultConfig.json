@@ -11,6 +11,12 @@
 			"loadOrder": 1
 		},
 		{
+			"path": "ReplicatedStorage",
+			"restricted": false,
+			"makeCategory": false,
+			"loadOrder": 1
+		},
+		{
 			"path": "ServerScriptService",
 			"restricted": "SERVER",
 			"makeCategory": false,
