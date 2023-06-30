@@ -23,7 +23,7 @@ export function activate(context: ExtensionContext) {
 	const session = new Session(context);
 	context.subscriptions.push(session); // add the session as a subscription so its deleted when the extension deactivates for the workspace
 
-	const rojoConfigReader = new ConfigReader(context);
+	//const rojoConfigReader = new ConfigReader(context);
 
 	// Rojo configuration
 	let rojoConfig = undefined;

@@ -1,5 +1,4 @@
 /node_modules
-package-lock.json
-vsc-extension-quickstart.md
-*.vsix
 /out
+package-lock.json
+/testing
