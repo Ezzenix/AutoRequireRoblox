@@ -1,34 +1,84 @@
-import * as vscode from "vscode";
-import * as SessionManager from "./sessionManager";
-import * as QuickMenu from "./quickMenu";
+import {
+	ExtensionContext,
+	workspace,
+	languages,
+	Uri,
+	CompletionItem,
+	TextDocument,
+	Position,
+	Range,
+	CompletionItemKind,
+	CancellationToken,
+	CompletionContext,
+	TextEdit,
+} from "vscode";
+import * as fs from "fs";
+import { findRequireExpressions, getModules } from "./functions";
 import { Session } from "./session";
+import { ConfigReader } from "./configReader";
 
-export type State = {
-    statusButton: vscode.StatusBarItem;
-    context: vscode.ExtensionContext;
-};
+export function activate(context: ExtensionContext) {
+	console.log("extension activated");
 
-export function activate(context: vscode.ExtensionContext) {
-    const state: State = {
-        statusButton: vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 250),
-        context: context,
-    };
+	const session = new Session(context);
+	context.subscriptions.push(session); // add the session as a subscription so its deleted when the extension deactivates for the workspace
 
-    state.statusButton.text = "$(sparkle) Luna";
-    state.statusButton.tooltip = "Click to open Luna menu.";
-    state.statusButton.command = "luna.menu";
-    state.statusButton.show();
+	const rojoConfigReader = new ConfigReader(context);
 
-    // Silently attempt to initialize a new session
-    SessionManager.Start(undefined, true);
+	// Rojo configuration
+	let rojoConfig = undefined;
+	function updateRojoConfig() {}
 
-    // Menu command
-    context.subscriptions.push(vscode.commands.registerCommand("luna.menu", QuickMenu.Open));
+	// Create workspace file watcher
+	const watcher = workspace.createFileSystemWatcher("**", false, false, false);
+	watcher.onDidChange(fileChange);
+	watcher.onDidCreate(fileChange);
+	watcher.onDidDelete(fileChange);
+	fileChange();
 
-    // Done
-    console.log("luna activated");
+	// Handle file changes
+	function fileChange(uri?: Uri) {}
+
+	function provideCompletionItems(
+		document: TextDocument,
+		position: Position,
+		token: CancellationToken,
+		context: CompletionContext
+	) {
+		return getModules().map((module) => {
+			const { name, gamePath } = module;
+
+			const requireExpression = `local ${name} = require(${module.gamePath})`;
+
+			const insertRequireEdit = new TextEdit(
+				new Range(new Position(0, 0), new Position(0, 0)),
+				requireExpression + `\n`
+			);
+
+			const allRequireExpressions = findRequireExpressions(document);
+			const requireExists = allRequireExpressions.includes(requireExpression);
+
+			setTimeout(() => {
+				console.log(allRequireExpressions, requireExists);
+			}, 10);
+
+			let item = new CompletionItem(name, CompletionItemKind.Module);
+			item.detail = `Require and use the ${name} module`;
+			item.preselect = true;
+			item.sortText = "!!!!!";
+
+			item.additionalTextEdits = requireExists ? [] : [insertRequireEdit]; // insert require expression if it doesn't exist
+
+			return item;
+		});
+	}
+
+	// Register the item completion provider
+	context.subscriptions.push(
+		languages.registerCompletionItemProvider({ language: "lua" }, { provideCompletionItems }, ".")
+	);
 }
 
 export function deactivate() {
-    SessionManager.CleanupAll();
+	console.log("extension deactivated");
 }
