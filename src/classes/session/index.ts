@@ -82,7 +82,7 @@ export class Session {
 
 	provideCompletion(document: TextDocument, position: Position, token: CancellationToken, context: CompletionContext) {
 		if (!this.rojoMap) return [];
-		return completionItems(document, position, token, context, this.cachedModules);
+		return completionItems(document, position, token, context, this.cachedModules, this.workspacePath);
 	}
 
 	// Executed when a documents content changes
@@ -98,7 +98,7 @@ export class Session {
 
 	updateCollections() {
 		if (!this.rojoMap) return;
-		if (!this.extensionConfig.storedValue.enableRequireCollection) return;
+		if (!this.extensionConfig.storedValue.enableModuleCollection) return;
 		if (this.hasQueuedUpdateCollections) return;
 		this.hasQueuedUpdateCollections = true;
 		setTimeout(() => {

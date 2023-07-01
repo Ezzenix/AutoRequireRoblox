@@ -12,7 +12,7 @@ type SubModule = {
 	gamePath: string;
 };
 
-function scanCollectionFiles(directoryPath: string) {
+function scanCollectionFiles(directoryPath: string): string[] {
 	const initLuaFiles: string[] = [];
 
 	function search(directory: string) {
@@ -55,30 +55,34 @@ function scanModulesInCollection(collectionFile: string, rojoMap: any): SubModul
 	return modules;
 }
 
+function updateCollection(directory: string, rojoMap: any) {
+	const subModules = scanModulesInCollection(directory, rojoMap);
+
+	const requireList = subModules
+		.map((subModule) => {
+			return `	["${subModule.name}"] = require(${subModule.gamePath})`;
+		})
+		.join(",\n");
+
+	/* prettier-ignore */
+	const lines = [
+		COLLECTION_FILE_IDENTIFIER,
+		``,
+		`return {\n${requireList}\n}`
+	];
+
+	const finalContent = lines.join("\n");
+
+	const currentContent = readFile(directory);
+	if (currentContent !== finalContent) {
+		writeFile(directory, finalContent);
+	}
+}
+
 export default function updateCollections(workspacePath: string, rojoMap: any) {
 	const collectionFiles = scanCollectionFiles(workspacePath);
 
 	collectionFiles.forEach((collectionFile) => {
-		const subModules = scanModulesInCollection(collectionFile, rojoMap);
-
-		const requireList = subModules
-			.map((subModule) => {
-				return `	["${subModule.name}"] = require(${subModule.gamePath})`;
-			})
-			.join(",\n");
-
-		/* prettier-ignore */
-		const lines = [
-			COLLECTION_FILE_IDENTIFIER,
-			"",
-			`return {\n${requireList}\n}`
-		];
-
-		const finalContent = lines.join("\n");
-
-		const currentContent = readFile(collectionFile);
-		if (currentContent !== finalContent) {
-			writeFile(collectionFile, finalContent);
-		}
+		updateCollection(collectionFile, rojoMap);
 	});
 }
