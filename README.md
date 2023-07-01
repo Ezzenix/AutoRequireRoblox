@@ -4,7 +4,7 @@ Creates autocompletions for your modules and automatically requires them if nece
 
 <img src="assets/AutoComplete.gif" width="80%" />
 
-Automatically requires all child modules of a module. Just put `--@AutoRequireCollection` in the `init.lua` file.
+Automatically requires all child modules of a module. Just put `--@AutoRequireCollection` in the `init.lua` file, it will overwrite the rest of the file so be careful.
 
 <img src="assets/Collection2.png" width="80%" />
 
