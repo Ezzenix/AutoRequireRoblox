@@ -2,11 +2,12 @@
 	"name": "auto-require-roblox",
 	"displayName": "Auto Require Roblox",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "Ezzenix",
 	"keywords": [
 		"roblox"
 	],
+	"icon": "assets/Logo.png",
 	"engines": {
 		"vscode": "^1.78.0"
 	},
