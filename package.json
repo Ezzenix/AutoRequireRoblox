@@ -1,6 +1,6 @@
 {
-	"name": "luau",
-	"displayName": "Luau",
+	"name": "auto-require-roblox",
+	"displayName": "Auto Require Roblox",
 	"description": "",
 	"version": "0.0.1",
 	"publisher": "Ezzenix",
@@ -21,6 +21,15 @@
 		"onStartupFinished"
 	],
 	"main": "out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "autorequireroblox.config",
+				"title": "Create configuration file",
+				"category": "AutoRequire"
+			}
+		]
+	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
@@ -41,8 +50,5 @@
 		"glob": "^8.1.0",
 		"mocha": "^10.2.0",
 		"typescript": "^5.0.4"
-	},
-	"dependencies": {
-		"@types/luaparse": "^0.2.9"
 	}
 }

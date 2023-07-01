@@ -1,74 +1,24 @@
-<div align="center">
-	<img src="assets/Luna.png" alt="Luna" height="230">
-</div>
+## Features
 
-<hr />
+* **Module AutoCompletion**: Creates autocompletions for your modules and automatically requires them if necessary.
 
-### About
-**Luna** creates a module containing all your modules, and keeps it updated as you edit your project. I will call the module 'Library' in this tutorial but you can configure it to whatever you like. The extension works as a module loader, but with intellisense.
+<img src="assets/AutoComplete.gif" width="100%" />
 
-You have to use [Rojo](https://rojo.space/) in your project for this to work.\
-For intellisene you have to use something like [Roblox LSP](https://github.com/NightrainsRbx/RobloxLsp).
+* **Module Collections**: Automatically requires all child modules of a module. Just put `--@AutoRequireCollection` in your `init.lua` file.
 
-&nbsp;
+<img src="assets/Collection2.png" width="100%" />
 
-### Getting Started
+## Install
+* Setup [Rojo](https://rojo.space/) in your project if you haven't already.
+* Download the extension from the extensions tab.
 
-1. Install the extension [here](https://marketplace.visualstudio.com/items?itemName=Ezzenix.luna-roblox).
-2. Run the '**Luna: Open Menu**' command.
-3. Select '**Start Luna**' and a configuration file will be generated for you to edit. See below for information about the config.
-4. After customizing the configuration select '**Start Luna**' again to start it.
-5. You can now start using it!
-
-\
-**Example:**
-
-```lua
--- Require the Library created by the extension, the path depends
--- on your "modulePath" property and your Rojo project configuratin.
-local Library = require(game:GetService("ReplicatedStorage").Library)
-
-Library.MyModule.Say("Hello") -- This will now have intellisense unlike normal module loaders.
-```
-
-&nbsp;
-
-### Config
-|Option|Description|Default Value|
+## Config
+You can create a config file `.autorequire.json` by running the `AutoRequire: Create configuration file` command in the command palette.
+|Option|Description|Default|
 |-|-|-|
-|modulePath|Path of the module to generate|"ReplicatedStorage/Library"|
-|rojoProject|Name of your rojo project|"default.project"|
-|variableName|Variable name of the Library in your own scripts, used for dependency checking|["StarterPlayerScripts"]|
-|directories|The directories you want to use, a global one is added by default but here you can customize your own. *path* is the folder path in your project. *restricted* can be either false, "CLIENT" or "SERVER". *makeCategory* will put the modules in their own directory in the Library, for example: *Library.Utils.Add()* instead of *Library.Add()*. *loadOrder* is in which order it should be loaded.|*See example below*|
-
-**Example:**
-```json
-{
-	"modulePath": "ReplicatedStorage/Library",
-	"rojoProject": "default.project",
-	"variableName": "Library",
-
-	"directories": [
-		{
-			"path": "ReplicatedStorage/Utils",
-			"restricted": false,
-			"makeCategory": true,
-			"loadOrder": 1
-		},
-		{
-			"path": "ServerScriptService",
-			"restricted": "SERVER",
-			"makeCategory": false,
-			"loadOrder": 2
-		}
-	]
-}
-```
-
-<font size=2>Paths in the config are file paths in your project, not game paths.\
-After configuring your project the extension will automatically start when you open it the next time.</font>
+|rojoProject|Path to the Rojo project you are using|"default.project.json"|
+|enableModuleCollection|Should module collections be enabled|true|
 
 &nbsp;
 
-### Contact
-If you need help you can add me on discord **Ezzenix#5500**.
+*If you have any questions you can add me on discord: **ezzenix***
