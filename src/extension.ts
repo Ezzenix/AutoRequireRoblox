@@ -7,8 +7,6 @@ const defaultConfigPath = join(__dirname, "..", "src", "defaultConfig.json");
 const defaultConfigRaw = readFile(defaultConfigPath, true);
 
 export function activate(context: ExtensionContext) {
-	console.log("auto-require-roblox activated");
-
 	const workspacePath = workspace.workspaceFolders[0].uri.fsPath;
 	const session = new Session(context, workspacePath, JSON.parse(defaultConfigRaw));
 	context.subscriptions.push(session);
@@ -34,6 +32,8 @@ export function activate(context: ExtensionContext) {
 			}
 		})
 	);
+
+	console.log("auto-require-roblox activated");
 }
 
 export function deactivate() {

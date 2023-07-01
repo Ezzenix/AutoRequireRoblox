@@ -36,7 +36,7 @@ export default function completionItems(
 
 		let item = new CompletionItem(module.name, CompletionItemKind.Module);
 		item.detail = `Require and use the ${module.name} module`;
-		item.preselect = true;
+		//item.preselect = true;
 		item.sortText = "!!!!!";
 
 		item.additionalTextEdits = insertRequireEdit ? [insertRequireEdit] : []; // insert require expression if it doesn't exist

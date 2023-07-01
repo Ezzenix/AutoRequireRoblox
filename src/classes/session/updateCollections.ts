@@ -56,7 +56,6 @@ function scanModulesInCollection(collectionFile: string, rojoMap: any): SubModul
 }
 
 export default function updateCollections(workspacePath: string, rojoMap: any) {
-	console.log("updating collections");
 	const collectionFiles = scanCollectionFiles(workspacePath);
 
 	collectionFiles.forEach((collectionFile) => {
