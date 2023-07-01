@@ -1,8 +1,6 @@
 import { basename, dirname, normalize } from "path";
 
-/*
-	Gets the gamePath from filePath
-*/
+/** Gets the gamePath from filePath */
 export default function getGamePath(path: string, rojoMap: any) {
 	path = normalize(path);
 
