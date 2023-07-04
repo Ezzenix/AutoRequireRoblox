@@ -5,9 +5,11 @@ import { Session } from "./session/index";
 import { fileExists, writeFile } from "./utilities/fsWrapper";
 
 export function activate(context: ExtensionContext) {
-	const workspacePath = workspace.workspaceFolders[0].uri.fsPath;
-	const session = new Session(context, workspacePath);
-	context.subscriptions.push(session);
+	if (workspace.workspaceFolders && workspace.workspaceFolders.length >= 1) {
+		const workspacePath = workspace.workspaceFolders[0].uri.fsPath;
+		const session = new Session(context, workspacePath);
+		context.subscriptions.push(session);
+	}
 
 	context.subscriptions.push(
 		commands.registerCommand("autorequireroblox.config", () => {
