@@ -1,14 +1,12 @@
-import { ExtensionContext, Uri, commands, window, workspace } from "vscode";
-import { Session } from "./classes/session/index";
-import { fileExists, readFile, writeFile } from "./utilities/fsWrapper";
 import { join } from "path";
-
-const defaultConfigPath = join(__dirname, "..", "src", "defaultConfig.json");
-const defaultConfigRaw = readFile(defaultConfigPath, true);
+import { ExtensionContext, Uri, commands, window, workspace } from "vscode";
+import { DEFAULT_CONFIG } from "./constants";
+import { Session } from "./session/index";
+import { fileExists, writeFile } from "./utilities/fsWrapper";
 
 export function activate(context: ExtensionContext) {
 	const workspacePath = workspace.workspaceFolders[0].uri.fsPath;
-	const session = new Session(context, workspacePath, JSON.parse(defaultConfigRaw));
+	const session = new Session(context, workspacePath);
 	context.subscriptions.push(session);
 
 	context.subscriptions.push(
@@ -21,7 +19,7 @@ export function activate(context: ExtensionContext) {
 				return window.showErrorMessage(`Configuration already exists at ${configPath}`);
 			}
 
-			if (writeFile(configPath, defaultConfigRaw)) {
+			if (writeFile(configPath, JSON.stringify(DEFAULT_CONFIG))) {
 				const uri = Uri.file(configPath);
 				if (uri) {
 					window.showTextDocument(uri);
