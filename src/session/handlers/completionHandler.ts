@@ -49,11 +49,14 @@ export class CompletionHandler {
 		const modules = this.moduleCache;
 
 		// Filter visible modules
-		const userTypedText = document.getText(new Range(position.with(undefined, 0), position)).toLowerCase();
-		if (!userTypedText || userTypedText.trim() === "" || userTypedText.endsWith(".")) return [];
+		const lineText = document.getText(new Range(position.with(undefined, 0), position)).toLowerCase();
+		if (!lineText || lineText.trim() === "" || lineText.endsWith(".") || lineText.endsWith(" ")) return [];
+		//const split = lineText.split(" ");
+		//const lastWord = split[split.length - 1];
+
 		const filteredModules = modules.filter((module) => {
 			if (module.filePath === document.uri.fsPath) return false; // filter out the module you are currently writing in
-			return module.name.toLowerCase().startsWith(userTypedText);
+			return true;
 		});
 
 		// Create completion items
