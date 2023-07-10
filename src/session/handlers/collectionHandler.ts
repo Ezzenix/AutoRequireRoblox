@@ -77,7 +77,13 @@ export class CollectionHandler {
 		const directoryPaths: string[] = [];
 
 		function search(directory: string) {
+			const stat = fileStat(directory);
+			if (!stat) return console.error(`scanCollectionDirectories failed because there is no file at ${directory}`);
+			if (!stat.isDirectory())
+				return console.error(`scanCollectionDirectories failed because file at ${directory} is not a directory`);
+
 			const files = readdirSync(directory);
+
 			for (const file of files) {
 				const filePath = join(directory, file);
 				const fileStats = fileStat(filePath);

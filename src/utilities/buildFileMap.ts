@@ -20,6 +20,16 @@ export default function buildFileMap(rootPath: any) {
 	const map = [];
 
 	function traverse(path: string, m, parent = undefined) {
+		const stat = fileStat(path);
+		if (!stat) {
+			console.error(`BuildFileMap failed because there is no file at ${path}`);
+			return;
+		}
+		if (!stat.isDirectory()) {
+			console.error(`BuildFileMap failed because file at ${path} is not a directory`);
+			return;
+		}
+
 		const files = readdirSync(path);
 
 		for (const fileName of files) {
