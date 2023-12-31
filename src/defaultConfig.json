@@ -1,5 +1,6 @@
 {
 	"rojoProject": "default.project.json",
 	"enableModuleCollection": true,
-	"useWaitForChild": true
+	"useWaitForChild": true,
+	"showSubModules": false
 }

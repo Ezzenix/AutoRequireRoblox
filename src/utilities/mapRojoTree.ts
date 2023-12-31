@@ -11,7 +11,7 @@ export default function mapRojoTree(rojoTree: any) {
 				traverse(value, currentPath);
 			} else if (key === "$path") {
 				// path value
-				rojoMap[`${normalize(value)}`] = parentPath.replace("/", ".");
+				rojoMap[`${normalize(value)}`] = parentPath.replace("/", ".").replace(/\//g, ".");
 			}
 		}
 	}

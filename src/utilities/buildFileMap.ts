@@ -48,8 +48,10 @@ export default function buildFileMap(rootPath: any) {
 								name: fileName,
 								path: filePath,
 								deep: true,
+								children: [],
 								parent: parent,
 							};
+							//traverse(filePath, obj.children, obj);
 							m.push(obj);
 						} else {
 							// normal directory / folder
@@ -65,16 +67,22 @@ export default function buildFileMap(rootPath: any) {
 						}
 					}
 					if (stat.isFile()) {
-						if (fileName.endsWith(".lua") && !fileName.endsWith(".server.lua") && !fileName.endsWith(".client.lua")) {
-							// normal lua module file
-							const obj = {
-								type: "module",
-								name: fileName.split(".")[0],
-								path: filePath,
-								deep: false,
-								parent: parent,
-							};
-							m.push(obj);
+						if (fileName !== "init.lua") {
+							if (
+								fileName.endsWith(".lua") &&
+								!fileName.endsWith(".server.lua") &&
+								!fileName.endsWith(".client.lua")
+							) {
+								// normal lua module file
+								const obj = {
+									type: "module",
+									name: fileName.split(".")[0],
+									path: filePath,
+									deep: false,
+									parent: parent,
+								};
+								m.push(obj);
+							}
 						}
 					}
 				}
