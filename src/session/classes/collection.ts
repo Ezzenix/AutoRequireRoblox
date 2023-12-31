@@ -5,6 +5,7 @@ import { COLLECTION_FILE_IDENTIFIER } from "../../constants";
 import { fileStat, readFile, writeFile } from "../../utilities/fsWrapper";
 import getGamePath from "../../utilities/getGamePath";
 import { CollectionHandler } from "../handlers/collectionHandler";
+import { Session } from "..";
 
 type SubModule = {
 	name: string;
@@ -52,7 +53,12 @@ export class Collection {
 			subModules.push({
 				name: basename(filePath, ".lua"),
 				filePath: filePath,
-				gamePath: getGamePath(filePath, this.collectionHandler.session.rojoMap),
+				gamePath: getGamePath(
+					filePath,
+					this.collectionHandler.session.rojoMap,
+					this.collectionHandler.session.workspacePath,
+					this.collectionHandler.session
+				),
 			});
 		});
 

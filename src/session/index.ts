@@ -26,7 +26,7 @@ export class Session {
 		this.collectionHandler = new CollectionHandler(this);
 
 		// Create file watcher
-		const srcPattern = new RelativePattern(workspacePath, "src/**/*");
+		const srcPattern = new RelativePattern(workspacePath, "**/*");
 		this.watcher = workspace.createFileSystemWatcher(srcPattern, false, false, false);
 		const documentChangedBind = this.documentChanged.bind(this);
 		const fileChangedBind = this.fileChanged.bind(this);
@@ -53,8 +53,8 @@ export class Session {
 		this.collectionHandler.dispose();
 	}
 
-	scanModules(path = join(this.workspacePath, "src")) {
-		if (!this.rojoMap) return [];
-		return scanModules(path, this.rojoMap);
-	}
+	//scanModules(path = join(this.workspacePath, "src")) {
+	//	if (!this.rojoMap) return [];
+	//	return scanModules(path, this.rojoMap);
+	//}
 }

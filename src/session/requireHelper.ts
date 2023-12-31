@@ -14,7 +14,12 @@ export function getRequireStatement(module: ModuleInfo) {
 export function isRequiring(module: ModuleInfo, document: TextDocument) {
 	const fullRequireLine = getRequireStatement(module);
 	const [allRequires, _] = findAllRequires(document);
-	return allRequires.includes(fullRequireLine);
+	for (const line of allRequires) {
+		if (line.startsWith(`local ${module.name} = require`)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**

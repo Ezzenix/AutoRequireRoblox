@@ -20,12 +20,19 @@ export class ConfigHandler {
 			if (map) {
 				session.rojoMap = map;
 			}
+			setTimeout(() => {
+				this.session.completionHandler.refreshModuleCache();
+			}, 2000);
 		});
 		this.extensionConfig.onDidChange((data) => {
 			if (!data) return;
 			this.rojoConfig.setPath(join(session.workspacePath, data.rojoProject));
 
 			this.session.collectionHandler?.reload();
+
+			setTimeout(() => {
+				this.session.completionHandler.refreshModuleCache();
+			}, 2000);
 		});
 	}
 

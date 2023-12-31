@@ -1,14 +1,11 @@
+import * as configReader from "./configReader";
+import { Session } from "./../session";
 import { basename, dirname, normalize } from "path";
 
 /** Gets the gamePath from filePath */
-export default function getGamePath(path: string, rojoMap: any) {
+export default function getGamePath(path: string, rojoMap: any, workspacePath: string, session: Session) {
 	path = normalize(path);
-
-	// remove everything before until src
-	const i = path.indexOf("src");
-	if (i !== -1) {
-		path = path.slice(i);
-	}
+	path = path.substring(workspacePath.length + 1);
 
 	const dirPath = dirname(path);
 	const fileName = basename(path, ".lua");
@@ -21,12 +18,17 @@ export default function getGamePath(path: string, rojoMap: any) {
 			const rojoDir = rojoMap[key];
 			const remainingPath = dirPath.slice(key.length).replace(/^\\/, ""); // slice everything after the main part and remove the first \
 			// .replace(/\\/g, ".")   <-- Replaces all \ with .
-			gamePath = rojoDir.replace(/\\/g, ".") + (remainingPath !== "" ? `.${remainingPath.replace(/\\/g, ".")}` : "") + `.${fileName}`;
+			gamePath =
+				rojoDir.replace(/\\/g, ".") +
+				(remainingPath !== "" ? `.${remainingPath.replace(/\\/g, ".")}` : "") +
+				`.${fileName}`;
 		}
 	}
 	if (!gamePath) {
 		return;
 	}
+
+	const useWaitForChild = !(session.configHandler.extensionConfig.storedValue?.useWaitForChild === false);
 
 	let final = "";
 	const splitPath = gamePath.split(".");
@@ -34,7 +36,11 @@ export default function getGamePath(path: string, rojoMap: any) {
 		if (i === 0) {
 			final = final + `game:GetService("${splitPath[i]}")`;
 		} else {
-			final = final + `:WaitForChild("${splitPath[i]}")`;
+			if (useWaitForChild) {
+				final = final + `:WaitForChild("${splitPath[i]}")`;
+			} else {
+				final = final + `.${splitPath[i]}`;
+			}
 		}
 	}
 	return final;

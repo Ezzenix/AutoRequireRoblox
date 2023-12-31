@@ -18,3 +18,4 @@ You can create a config file `.autorequire.json` by running the `AutoRequire: Cr
 |-|-|-|
 |rojoProject|Path to the Rojo project you are using|"default.project.json"|
 |enableModuleCollection|Should module collections be enabled|true|
+|useWaitForChild|Should module paths use :WaitForChild()|true|

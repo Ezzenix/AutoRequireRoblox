@@ -1,3 +1,4 @@
+import { Session } from "../session";
 import getGamePath from "../utilities/getGamePath";
 import buildFileMap, { File } from "./buildFileMap";
 
@@ -7,7 +8,7 @@ export type ModuleInfo = {
 	filePath: string;
 };
 
-export default function scanModules(path: string, rojoMap: any) {
+export default function scanModules(path: string, rojoMap: any, session: Session) {
 	const fileMap = buildFileMap(path);
 	const modules: ModuleInfo[] = [];
 
@@ -16,7 +17,7 @@ export default function scanModules(path: string, rojoMap: any) {
 			if (file.type === "directory") {
 				traverseFiles(file.children);
 			} else {
-				const gamePath = getGamePath(file.path, rojoMap);
+				const gamePath = getGamePath(file.path, rojoMap, path, session);
 				modules.push({
 					name: file.name,
 					gamePath: gamePath,

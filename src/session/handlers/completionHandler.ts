@@ -15,7 +15,7 @@ import {
 import { Session } from "..";
 import { readFile } from "../../utilities/fsWrapper";
 import scanModules, { ModuleInfo } from "../../utilities/scanModules";
-import { createRequireInsertEdit } from "../requireHelper";
+import { createRequireInsertEdit, isRequiring } from "../requireHelper";
 
 export class CompletionHandler {
 	session: Session;
@@ -39,10 +39,15 @@ export class CompletionHandler {
 	}
 
 	refreshModuleCache() {
-		this.moduleCache = scanModules(this.session.workspacePath, this.session.rojoMap);
+		this.moduleCache = scanModules(this.session.workspacePath, this.session.rojoMap, this.session);
 	}
 
-	provideCompletions(document: TextDocument, position: Position, token: CancellationToken, context: CompletionContext) {
+	provideCompletions(
+		document: TextDocument,
+		position: Position,
+		token: CancellationToken,
+		context: CompletionContext
+	) {
 		if (!this.session.rojoMap) return [];
 
 		const workspacePath = this.session.workspacePath;
@@ -56,6 +61,8 @@ export class CompletionHandler {
 
 		const filteredModules = modules.filter((module) => {
 			if (module.filePath === document.uri.fsPath) return false; // filter out the module you are currently writing in
+			if (module.name.includes(" ")) return false;
+			if (isRequiring(module, document)) return false;
 			return true;
 		});
 
