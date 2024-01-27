@@ -8,7 +8,7 @@ export default function getGamePath(path: string, rojoMap: any, workspacePath: s
 	path = path.substring(workspacePath.length + 1);
 
 	const dirPath = dirname(path);
-	const fileName = basename(path, ".lua");
+	const fileName = basename(path, ".luau");
 	var rojoKey: any;
 
 	//console.log("file path", path);

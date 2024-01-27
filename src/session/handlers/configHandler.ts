@@ -31,7 +31,8 @@ export class ConfigHandler {
 			this.session.collectionHandler?.reload();
 
 			setTimeout(() => {
-				this.session.completionHandler.refreshModuleCache();
+				// TODO: CHANGE THIS BACK
+				//this.session.completionHandler.refreshModuleCache();
 			}, 2000);
 		});
 	}

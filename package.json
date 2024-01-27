@@ -2,7 +2,7 @@
 	"name": "auto-require-roblox",
 	"displayName": "Auto Require Roblox",
 	"description": "Provides features such as module autocompletion with automatic require",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"publisher": "Ezzenix",
 	"keywords": [
 		"Programming Languages"
@@ -19,7 +19,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onStartupFinished"
+		"onLanguage:lua",
+		"onLanguage:luau"
 	],
 	"main": "out/extension.js",
 	"contributes": {

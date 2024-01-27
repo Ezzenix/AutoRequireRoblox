@@ -34,7 +34,7 @@ export class Collection {
 		if (!stat) return false;
 		if (!stat.isDirectory) return false;
 
-		const initFile = readFile(join(this.dirPath, "init.lua"));
+		const initFile = readFile(join(this.dirPath, "init.luau"));
 		if (!initFile) return false;
 		return (initFile as string).includes(COLLECTION_FILE_IDENTIFIER);
 	}
@@ -47,11 +47,11 @@ export class Collection {
 		// Get subModules
 		const subModules: SubModule[] = [];
 		readdirSync(this.dirPath).forEach((subFile) => {
-			if (!subFile.endsWith(".lua") || subFile === "init.lua") return;
+			if (!subFile.endsWith(".luau") || subFile === "init.luau") return;
 
 			const filePath = join(this.dirPath, subFile);
 			subModules.push({
-				name: basename(filePath, ".lua"),
+				name: basename(filePath, ".luau"),
 				filePath: filePath,
 				gamePath: getGamePath(
 					filePath,
@@ -78,7 +78,7 @@ export class Collection {
 
 		const finalContent = lines.join("\n");
 
-		const initPath = join(this.dirPath, "init.lua");
+		const initPath = join(this.dirPath, "init.luau");
 		const currentContent = readFile(initPath);
 		if (currentContent !== finalContent) {
 			writeFile(initPath, finalContent);

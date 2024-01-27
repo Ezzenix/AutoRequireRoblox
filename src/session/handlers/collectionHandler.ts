@@ -24,7 +24,7 @@ export class CollectionHandler {
 	projectChanged() {
 		if (!this.areCollectionsEnabled()) return;
 
-		const directories = this.scanCollectionDirectories(join(this.session.workspacePath, "src"));
+		const directories = this.scanCollectionDirectories(this.session.workspacePath);
 
 		// create new collections that should exist
 		for (const dirPath of directories) {
@@ -78,9 +78,12 @@ export class CollectionHandler {
 
 		function search(directory: string) {
 			const stat = fileStat(directory);
-			if (!stat) return console.error(`scanCollectionDirectories failed because there is no file at ${directory}`);
+			if (!stat)
+				return console.error(`scanCollectionDirectories failed because there is no file at ${directory}`);
 			if (!stat.isDirectory())
-				return console.error(`scanCollectionDirectories failed because file at ${directory} is not a directory`);
+				return console.error(
+					`scanCollectionDirectories failed because file at ${directory} is not a directory`
+				);
 
 			const files = readdirSync(directory);
 
@@ -91,7 +94,7 @@ export class CollectionHandler {
 
 				if (fileStats.isDirectory()) {
 					search(filePath);
-				} else if (file === "init.lua") {
+				} else if (file === "init.luau") {
 					const content = readFile(filePath);
 					if (content && content.includes(COLLECTION_FILE_IDENTIFIER)) {
 						directoryPaths.push(directory);

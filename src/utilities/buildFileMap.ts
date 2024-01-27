@@ -17,16 +17,23 @@ export type File = {
 export default function buildFileMap(rootPath: any) {
 	rootPath = rootPath.replace(/\//g, "\\");
 
+	console.log("path: ", rootPath);
+
 	const map = [];
 
 	function traverse(path: string, m, parent = undefined) {
 		const stat = fileStat(path);
-		if (!stat) {
-			console.error(`BuildFileMap failed because there is no file at ${path}`);
+		//console.log("-------------------");
+		//console.log("pppppath: ", path);
+		//console.log(stat);
+		//console.log("-------------------", stat === undefined);
+		if (stat === false) {
+			console.log("stat:", stat);
+			console.log(`BuildFileMap failed because there is no file at ${path}`);
 			return;
 		}
 		if (!stat.isDirectory()) {
-			console.error(`BuildFileMap failed because file at ${path} is not a directory`);
+			console.log(`BuildFileMap failed because file at ${path} is not a directory`);
 			return;
 		}
 
@@ -39,7 +46,7 @@ export default function buildFileMap(rootPath: any) {
 				const stat = fileStat(filePath);
 				if (stat) {
 					if (stat.isDirectory()) {
-						const isDeepModule = fileExists(join(filePath, "init.lua"));
+						const isDeepModule = fileExists(join(filePath, "init.luau"));
 
 						if (isDeepModule) {
 							// folders with a 'init.lua' file
@@ -67,11 +74,11 @@ export default function buildFileMap(rootPath: any) {
 						}
 					}
 					if (stat.isFile()) {
-						if (fileName !== "init.lua") {
+						if (fileName !== "init.luau") {
 							if (
-								fileName.endsWith(".lua") &&
-								!fileName.endsWith(".server.lua") &&
-								!fileName.endsWith(".client.lua")
+								fileName.endsWith(".luau") &&
+								!fileName.endsWith(".server.luau") &&
+								!fileName.endsWith(".client.luau")
 							) {
 								// normal lua module file
 								const obj = {

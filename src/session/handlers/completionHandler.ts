@@ -29,10 +29,10 @@ export class CompletionHandler {
 		this.refreshModuleCache();
 
 		// Completion items provider
-		const srcPattern = new RelativePattern(this.session.workspacePath, "src/**/*");
+		const srcPattern = new RelativePattern(this.session.workspacePath, "**/*");
 		const bind = this.provideCompletions.bind(this);
 		this.completionProvider = languages.registerCompletionItemProvider(
-			{ language: "lua", pattern: srcPattern },
+			{ language: "luau", pattern: srcPattern },
 			{ provideCompletionItems: bind },
 			"."
 		);
