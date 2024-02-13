@@ -57,7 +57,7 @@ export function fileStat(path: string) {
 		const stat = fs.statSync(path);
 		return stat;
 	} catch (err) {
-		console.log("fileStat error:", err);
+		console.error("fileStat error:", err);
 		return false;
 	}
 }

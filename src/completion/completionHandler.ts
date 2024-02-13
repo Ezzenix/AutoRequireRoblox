@@ -3,8 +3,6 @@ import {
 	CompletionContext,
 	CompletionItem,
 	CompletionItemKind,
-	Disposable,
-	MarkdownString,
 	Position,
 	Range,
 	RelativePattern,
@@ -20,7 +18,6 @@ import {
 	isRequiringModule,
 } from "../utilities/helper";
 import { CLIENT_SERVICES, SERVER_SERVICES, SERVICES } from "../constants";
-import { readFile } from "../utilities/fsWrapper";
 
 export class CompletionHandler {
 	session: Session;
@@ -91,8 +88,10 @@ export class CompletionHandler {
 		const sourcemap = this.session.sourcemap;
 		const source = document.getText();
 
-		const lineText = document.getText(new Range(position.with(undefined, 0), position)).toLowerCase();
-		if (!lineText || lineText.trim() === "" || lineText.endsWith(".") || lineText.endsWith(" ")) return;
+		const lineText = document.getText(new Range(position.with(undefined, 0), position));
+		const matches = lineText.match(/\b(\w+)\s*$/);
+		const lastWord = matches ? matches[1].toLowerCase() : "";
+		if (!lastWord || lastWord.endsWith(".") || lastWord.endsWith(" ")) return;
 
 		const scriptObj = this.getSourcemapObjectFromDocument(document);
 		if (!scriptObj) return;
@@ -102,6 +101,8 @@ export class CompletionHandler {
 
 		// Services
 		for (const serviceName of SERVICES) {
+			if (!serviceName.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
+
 			if (getServiceVariableName(source, serviceName)) continue;
 
 			let item = new CompletionItem(serviceName, CompletionItemKind.Interface);
@@ -114,7 +115,7 @@ export class CompletionHandler {
 		for (const obj of getScripts(sourcemap)) {
 			if (obj.className !== "ModuleScript") continue;
 
-			if (!obj.name.toLowerCase().startsWith(lineText.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
+			if (!obj.name.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
 
 			if (obj === scriptObj) continue;
 			if (isRequiringModule(source, obj)) continue;
