@@ -1,50 +1,65 @@
-import * as configReader from "./configReader";
-import { Session } from "./../session";
-import { basename, dirname, normalize } from "path";
+import { SERVER_SERVICES } from "../constants";
+import { SourcemapObject, getServiceName, isDescendantOf, isSubModule } from "./sourcemap";
 
-/** Gets the gamePath from filePath */
-export default function getGamePath(path: string, rojoMap: any, workspacePath: string, session: Session) {
-	path = normalize(path);
-	path = path.substring(workspacePath.length + 1);
+export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: SourcemapObject) {
+	if (relativeTo === undefined) {
+		// ABSOLUTE PATH
+		let path = "";
 
-	const dirPath = dirname(path);
-	const fileName = basename(path, ".luau");
-	var rojoKey: any;
+		let obj = moduleObj;
 
-	//console.log("file path", path);
-	//console.log("rojo map", rojoMap);
+		while (true) {
+			if (!obj.parent) break; // root
 
-	let gamePath: string;
-	for (const key in rojoMap) {
-		if (dirPath.startsWith(key)) {
-			rojoKey = key;
-			const rojoDir = rojoMap[key];
-			const remainingPath = dirPath.slice(key.length).replace(/^\\/, ""); // slice everything after the main part and remove the first \
-			// .replace(/\\/g, ".")   <-- Replaces all \ with .
-			gamePath =
-				rojoDir.replace(/\\/g, ".") +
-				(remainingPath !== "" ? `.${remainingPath.replace(/\\/g, ".")}` : "") +
-				`.${fileName}`;
-		}
-	}
-	if (!gamePath) {
-		return;
-	}
-
-	const useWaitForChild = !(session.configHandler.extensionConfig.storedValue?.useWaitForChild === false);
-
-	let final = "";
-	const splitPath = gamePath.split(".");
-	for (let i = 0; i < splitPath.length; i++) {
-		if (i === 0) {
-			final = final + `game:GetService("${splitPath[i]}")`;
-		} else {
-			if (useWaitForChild) {
-				final = final + `:WaitForChild("${splitPath[i]}")`;
+			if (obj.parent.parent) {
+				path = `.${obj.name}${path}`;
 			} else {
-				final = final + `.${splitPath[i]}`;
+				path = `game:GetService("${obj.name}")${path}`;
 			}
+
+			obj = obj.parent;
+			if (!obj) break;
 		}
+
+		// Convert StarterPlayerScripts to Player.PlayerScripts
+		const starterPlayerScriptsText = `game:GetService("StarterPlayer").StarterPlayerScripts`;
+		if (path.startsWith(starterPlayerScriptsText) && !SERVER_SERVICES.includes(getServiceName(moduleObj))) {
+			path = path.replace(starterPlayerScriptsText, `game:GetService("Players").LocalPlayer.PlayerScripts`);
+		}
+
+		return path;
+	} else {
+		// RELATIVE PATH
+		let path = "script";
+
+		let obj = moduleObj;
+
+		if (isDescendantOf(relativeTo, obj)) {
+			// .Parent spam
+			while (obj !== relativeTo) {
+				path = `${path}.Parent`;
+				relativeTo = relativeTo.parent;
+			}
+		} else {
+			// go up enough
+			while (!isDescendantOf(obj, relativeTo)) {
+				path = `${path}.Parent`;
+				relativeTo = relativeTo.parent;
+			}
+
+			// go down to module
+			function iterate(v: SourcemapObject) {
+				if (!v.children) return;
+				for (const child of v.children) {
+					if (isDescendantOf(obj, child)) {
+						path = `${path}.${child.name}`;
+						iterate(child);
+					}
+				}
+			}
+			iterate(relativeTo);
+		}
+
+		return path;
 	}
-	return final;
 }

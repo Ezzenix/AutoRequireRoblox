@@ -2,9 +2,9 @@ import * as fs from "fs";
 
 /*
 	Reads the file at the given path
-	Automatically parses .json if 'doNotParse' is not true
+	Automatically parses .json if 'doNotParse' isn't true
 */
-export function readFile(path: string, doNotParse = false) {
+export function readFile(path: string, doNotParse = false): string | undefined {
 	path = path.replace(/\//g, "\\");
 	try {
 		const contents = fs.readFileSync(path);
@@ -16,6 +16,7 @@ export function readFile(path: string, doNotParse = false) {
 			}
 		}
 	} catch (err) {
+		console.error(`Failed to read ${path}: ${err}`);
 		return;
 	}
 }
@@ -29,7 +30,7 @@ export function writeFile(path: string, contents: string) {
 		fs.writeFileSync(path, contents, `utf8`);
 		return true;
 	} catch (err) {
-		console.warn(`Failed to write ${path}: ${err}`);
+		console.error(`Failed to write ${path}: ${err}`);
 		return false;
 	}
 }

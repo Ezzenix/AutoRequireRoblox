@@ -1,8 +1,8 @@
 {
 	"name": "auto-require-roblox",
 	"displayName": "Auto Require Roblox",
-	"description": "Provides features such as module autocompletion with automatic require",
-	"version": "0.1.1",
+	"description": "Roblox module autocompletion.",
+	"version": "1.0.0",
 	"publisher": "Ezzenix",
 	"keywords": [
 		"Programming Languages"
@@ -28,6 +28,11 @@
 			{
 				"command": "autorequireroblox.config",
 				"title": "Create configuration file",
+				"category": "AutoRequire"
+			},
+			{
+				"command": "autorequireroblox.updatecollections",
+				"title": "Update all collections",
 				"category": "AutoRequire"
 			}
 		]
