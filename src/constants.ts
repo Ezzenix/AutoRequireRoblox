@@ -48,6 +48,7 @@ export const SERVICES = [
 	"TouchInputService",
 	"TweenService",
 	"VRService",
+	"UserInputService",
 ];
 
 export const CLIENT_SERVICES = ["StarterPlayer", "StarterGui"];
