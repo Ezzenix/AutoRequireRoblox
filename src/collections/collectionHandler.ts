@@ -1,6 +1,6 @@
 import { Session } from "../session";
 import { readFile, writeFile } from "../utilities/fsWrapper";
-import { SourcemapObject, getScripts } from "../utilities/sourcemap";
+import { SourcemapObject, getFilePath, getScripts } from "../utilities/sourcemap";
 
 const COLLECTION_FILE_IDENTIFIER = "--@AutoRequireCollection";
 
@@ -30,7 +30,7 @@ export class CollectionHandler {
 				`return {\n${requires.join(",\n")}\n}`
 			];
 
-			writeFile(`${this.session.workspacePath}\\${module.filePaths[0]}`, lines.join("\n"));
+			writeFile(`${this.session.workspacePath}\\${getFilePath(module)}`, lines.join("\n"));
 		}
 	}
 
@@ -40,8 +40,8 @@ export class CollectionHandler {
 		for (const script of getScripts(this.session.sourcemap)) {
 			if (script.className !== "ModuleScript") continue;
 
-			const source = readFile(`${this.session.workspacePath}\\${script.filePaths[0]}`);
-			if (source) {
+			const source = readFile(`${this.session.workspacePath}\\${getFilePath(script)}`);
+			if (source && typeof source === "string") {
 				if (source.startsWith(COLLECTION_FILE_IDENTIFIER)) {
 					modules.push(script);
 				}

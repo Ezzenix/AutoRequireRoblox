@@ -10,7 +10,14 @@ import {
 	languages,
 } from "vscode";
 import { Session } from "../session";
-import { SourcemapObject, getScripts, getServiceName, isScript, isSubModule } from "../utilities/sourcemap";
+import {
+	SourcemapObject,
+	getFilePath,
+	getScripts,
+	getServiceName,
+	isScript,
+	isSubModule,
+} from "../utilities/sourcemap";
 import {
 	createGetServiceEdit,
 	createRequireEdits,
@@ -49,7 +56,7 @@ export class CompletionHandler {
 		function iterate(object: SourcemapObject) {
 			for (const obj of object.children) {
 				if (obj.filePaths && isScript(obj)) {
-					if (obj.filePaths[0] === documentPath) {
+					if (getFilePath(obj) === documentPath) {
 						targetObj = obj;
 						break;
 					}
@@ -127,7 +134,7 @@ export class CompletionHandler {
 			}
 
 			let item = new CompletionItem(obj.name, CompletionItemKind.Module);
-			item.detail = `Require '${obj.filePaths[0]}'`;
+			item.detail = `Require '${getFilePath(obj)}'`;
 			item.additionalTextEdits = createRequireEdits(source, scriptObj, obj);
 			items.push(item);
 		}

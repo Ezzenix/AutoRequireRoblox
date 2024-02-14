@@ -23,6 +23,7 @@ export const SERVICES = [
 	"FriendService",
 	"GamepadService",
 	"GroupService",
+	"GuiService",
 	"HapticService",
 	"HttpService",
 	"Lighting",

@@ -38,6 +38,16 @@ export function getServiceName(obj: SourcemapObject) {
 	}
 }
 
+export function getFilePath(obj: SourcemapObject): string | undefined {
+	if (!obj.filePaths || obj.filePaths.length === 0) return;
+
+	for (const path of obj.filePaths) {
+		if (!path.endsWith(".json")) {
+			return path;
+		}
+	}
+}
+
 export function getScripts(sourcemap: SourcemapObject) {
 	const scriptObjects: SourcemapObject[] = [];
 
