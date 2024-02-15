@@ -1,49 +1,46 @@
 import { SERVER_SERVICES } from "../constants";
 import { SourcemapObject, getServiceName, isDescendantOf } from "./sourcemap";
 
-export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: SourcemapObject) {
+export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: SourcemapObject): string[] {
 	if (relativeTo === undefined) {
 		// ABSOLUTE PATH
-		let path = "";
+		let path = [];
 
 		let obj = moduleObj;
 
 		while (true) {
 			if (!obj.parent) break; // root
 
-			if (obj.parent.parent) {
-				path = `.${obj.name}${path}`;
-			} else {
-				path = `game:GetService("${obj.name}")${path}`;
-			}
+			path.splice(0, 0, obj.name);
 
 			obj = obj.parent;
 			if (!obj) break;
 		}
 
-		// Convert StarterPlayerScripts to Player.PlayerScripts
-		const starterPlayerScriptsText = `game:GetService("StarterPlayer").StarterPlayerScripts`;
-		if (path.startsWith(starterPlayerScriptsText) && !SERVER_SERVICES.includes(getServiceName(moduleObj))) {
-			path = path.replace(starterPlayerScriptsText, `game:GetService("Players").LocalPlayer.PlayerScripts`);
+		// Convert StarterPlayer.StarterPlayerScripts to Players.LocalPlayer.PlayerScripts
+		if (path[0] === "StarterPlayer" && path[1] === "StarterPlayerScripts") {
+			path[0] = "Players";
+			path[1] = "LocalPlayer";
+			path.splice(2, 0, "PlayerScripts");
 		}
 
 		return path;
 	} else {
 		// RELATIVE PATH
-		let path = "script";
+		let path = ["script"];
 
 		let obj = moduleObj;
 
 		if (isDescendantOf(relativeTo, obj)) {
 			// .Parent spam
 			while (obj !== relativeTo) {
-				path = `${path}.Parent`;
+				path.push("Parent");
 				relativeTo = relativeTo.parent;
 			}
 		} else {
 			// go up enough
 			while (!isDescendantOf(obj, relativeTo)) {
-				path = `${path}.Parent`;
+				path.push("Parent");
 				relativeTo = relativeTo.parent;
 			}
 
@@ -52,7 +49,7 @@ export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: Sou
 				if (!v.children) return;
 				for (const child of v.children) {
 					if (isDescendantOf(obj, child)) {
-						path = `${path}.${child.name}`;
+						path.push(child.name);
 						iterate(child);
 					}
 				}

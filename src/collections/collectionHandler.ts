@@ -40,7 +40,12 @@ export class CollectionHandler {
 		for (const script of getScripts(this.session.sourcemap)) {
 			if (script.className !== "ModuleScript") continue;
 
-			const source = readFile(`${this.session.workspacePath}\\${getFilePath(script)}`);
+			const moduleFilePath = getFilePath(script);
+			if (!moduleFilePath.endsWith("init.luau") && !moduleFilePath.endsWith("init.lua")) {
+				continue;
+			}
+
+			const source = readFile(`${this.session.workspacePath}\\${moduleFilePath}`);
 			if (source && typeof source === "string") {
 				if (source.startsWith(COLLECTION_FILE_IDENTIFIER)) {
 					modules.push(script);

@@ -56,10 +56,26 @@ export function createRequireEdits(source: string, fromObj: SourcemapObject, mod
 	if (isFromSubModule && isModuleSubModule && isFromSubModule === isModuleSubModule) {
 		relativeTo = fromObj;
 	}
+	const path = getGamePath(moduleObj, relativeTo);
+
+	console.log(path);
+
+	if (path[0] !== "script") {
+		// if the require starts with a service
+		const serviceName = path[0];
+		const serviceVar = getServiceVariableName(source, serviceName);
+		if (serviceVar) {
+			// use already defined service variable
+			path[0] = serviceVar;
+		} else {
+			// create new service variable
+			edits.push(createGetServiceEdit(source, serviceName));
+		}
+	}
 
 	const line = getFirstRequireLine(source) || 0;
 	const range = new Range(new Position(line, 0), new Position(line, 0));
-	const mainEdit = new TextEdit(range, `local ${moduleObj.name} = require(${getGamePath(moduleObj, relativeTo)})\n`);
+	const mainEdit = new TextEdit(range, `local ${moduleObj.name} = require(${path.join(".")})\n`);
 
 	edits.push(mainEdit);
 	return edits;

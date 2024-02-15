@@ -20,7 +20,6 @@ export const SERVICES = [
 	"ContextActionService",
 	"DataStoreService",
 	"Debris",
-	"FriendService",
 	"GamepadService",
 	"GroupService",
 	"GuiService",
@@ -50,6 +49,7 @@ export const SERVICES = [
 	"TweenService",
 	"VRService",
 	"UserInputService",
+	"SocialService",
 ];
 
 export const CLIENT_SERVICES = ["StarterPlayer", "StarterGui"];
