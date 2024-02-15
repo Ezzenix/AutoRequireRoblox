@@ -20,7 +20,12 @@ export class CollectionHandler {
 			let requires = [];
 			for (const child of module.children) {
 				if (child.className !== "ModuleScript") continue;
-				requires.push(`	["${child.name}"] = require(script["${child.name}"])`);
+
+				if (child.name.includes(" ")) {
+					requires.push(`	["${child.name}"] = require(script["${child.name}"])`);
+				} else {
+					requires.push(`	${child.name} = require(script.${child.name})`);
+				}
 			}
 
 			/* prettier-ignore */

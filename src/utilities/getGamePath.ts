@@ -1,5 +1,4 @@
-import { SERVER_SERVICES } from "../constants";
-import { SourcemapObject, getServiceName, isDescendantOf } from "./sourcemap";
+import { SourcemapObject, isDescendantOf } from "./sourcemap";
 
 export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: SourcemapObject): string[] {
 	if (relativeTo === undefined) {
