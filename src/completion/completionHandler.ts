@@ -122,6 +122,7 @@ export class CompletionHandler {
 		for (const obj of getScripts(sourcemap)) {
 			if (obj.className !== "ModuleScript") continue;
 
+			if (obj.name.includes(" ")) continue; // no spaces in name
 			if (!obj.name.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
 
 			if (obj === scriptObj) continue;
