@@ -12,7 +12,6 @@ export class Session {
 	completionHandler: CompletionHandler;
 	collectionHandler: CollectionHandler;
 
-	sourcemapWatcher: SourcemapWatcher;
 	sourcemap: SourcemapObject;
 
 	disposables: Disposable[];
@@ -22,11 +21,12 @@ export class Session {
 		this.context = context;
 		this.workspacePath = workspacePath;
 
-		this.sourcemapWatcher = new SourcemapWatcher(workspacePath);
-		this.sourcemapWatcher.onChange((sourcemap) => {
+		const sourcemapWatcher = new SourcemapWatcher(workspacePath);
+		sourcemapWatcher.onChange((sourcemap) => {
 			this.sourcemap = sourcemap;
 			this.collectionHandler.update();
 		});
+		this.disposables.push(sourcemapWatcher);
 
 		this.configHandler = new ConfigHandler(this);
 		this.completionHandler = new CompletionHandler(this);

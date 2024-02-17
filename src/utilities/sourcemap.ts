@@ -111,9 +111,7 @@ export class SourcemapWatcher {
 	}
 
 	private startProcess() {
-		if (this.process && !this.process.killed) {
-			this.process.kill();
-		}
+		this.dispose();
 
 		this.process = spawn("rojo", ["sourcemap", "--watch"], { cwd: this.rootPath });
 
