@@ -2,7 +2,7 @@
 	"name": "auto-require-roblox",
 	"displayName": "Auto Require Roblox",
 	"description": "Roblox module autocompletion.",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"publisher": "Ezzenix",
 	"keywords": [
 		"Programming Languages"
