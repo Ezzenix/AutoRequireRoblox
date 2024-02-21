@@ -1,5 +1,5 @@
 import { Position, Range, TextEdit } from "vscode";
-import { SourcemapObject, isSubModule } from "./sourcemap";
+import { SourcemapObject, isDescendantOf, isSubModule } from "./sourcemap";
 import getGamePath from "./getGamePath";
 
 function getLastCommentTagLine(source: string): number | undefined {
@@ -34,7 +34,7 @@ function getLastGetServiceLine(source: string): number | undefined {
 
 export function createGetServiceEdit(source: string, serviceName: string) {
 	const lastGetServiceLine = getLastGetServiceLine(source);
-	const line = Math.max(lastGetServiceLine, getLastCommentTagLine(source)) + 1;
+	const line = Math.max(lastGetServiceLine, getLastCommentTagLine(source));
 	const range = new Range(new Position(line, 0), new Position(line, 0));
 	return new TextEdit(
 		range,
@@ -72,6 +72,9 @@ export function createRequireEdits(source: string, fromObj: SourcemapObject, mod
 	if (isFromSubModule && isModuleSubModule && isFromSubModule === isModuleSubModule) {
 		relativeTo = fromObj;
 	}
+	if (isDescendantOf(moduleObj, fromObj)) {
+		relativeTo = fromObj;
+	}
 	const path = getGamePath(moduleObj, relativeTo);
 
 	if (path[0] !== "script") {
@@ -88,7 +91,7 @@ export function createRequireEdits(source: string, fromObj: SourcemapObject, mod
 	}
 
 	const lastGetRequireLine = getLastRequireLine(source);
-	const line = Math.max(getLastGetServiceLine(source), lastGetRequireLine, getLastCommentTagLine(source)) + 1;
+	const line = Math.max(getLastGetServiceLine(source), lastGetRequireLine, getLastCommentTagLine(source));
 	const range = new Range(new Position(line, 0), new Position(line, 0));
 	const mainEdit = new TextEdit(
 		range,

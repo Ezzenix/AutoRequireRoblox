@@ -91,7 +91,6 @@ export class CompletionHandler {
 		token: CancellationToken,
 		context: CompletionContext
 	) {
-		const workspacePath = this.session.workspacePath;
 		const sourcemap = this.session.sourcemap;
 		const source = document.getText();
 
@@ -112,6 +111,7 @@ export class CompletionHandler {
 
 			if (getServiceVariableName(source, serviceName)) continue;
 
+			// Create completion item
 			let item = new CompletionItem(serviceName, CompletionItemKind.Interface);
 			item.detail = `:GetService("${serviceName}")`;
 			item.additionalTextEdits = [createGetServiceEdit(source, serviceName)];
@@ -120,20 +120,22 @@ export class CompletionHandler {
 
 		// Modules
 		for (const obj of getScripts(sourcemap)) {
+			// Check if module should be shown
 			if (obj.className !== "ModuleScript") continue;
-
-			if (obj.name.includes(" ")) continue; // no spaces in name
-			if (!obj.name.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
-
 			if (obj === scriptObj) continue;
+			if (obj.name.includes(" ")) continue; // no spaces in name
+			if (getFilePath(obj).startsWith("Packages\\_Index")) continue; // Wally packages index
+			if (!obj.name.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
 			if (isRequiringModule(source, obj)) continue;
 			if (!this.canRequireEnvironment(scriptObj, obj)) continue;
-
 			if (this.session.configHandler.extensionConfig.storedValue.alwaysShowSubModules !== true) {
 				const objSubModule = isSubModule(obj);
-				if (objSubModule !== false && scriptSubModule !== isSubModule(obj)) continue;
+				if (objSubModule !== false && scriptSubModule !== objSubModule && objSubModule !== scriptObj) {
+					continue;
+				}
 			}
 
+			// Create completion item
 			let item = new CompletionItem(obj.name, CompletionItemKind.Module);
 			item.detail = `Require '${getFilePath(obj)}'`;
 			item.additionalTextEdits = createRequireEdits(source, scriptObj, obj);
