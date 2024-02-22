@@ -1,70 +1,79 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { window } from "vscode";
 
-export type SourcemapObject = {
+export type Instance = {
 	name: string;
 	className: string;
 	filePaths?: string[];
-	parent?: SourcemapObject;
-	children?: SourcemapObject[];
+	mainFilePath: string;
+	parent?: Instance;
+	children?: Instance[];
 };
 
-type SourcemapListener = (sourcemap: SourcemapObject) => void;
+type SourcemapListener = (sourcemap: Instance) => void;
 
-export function isScript(obj: SourcemapObject) {
-	return obj.className === "ModuleScript" || obj.className === "LocalScript" || obj.className === "Script";
-}
-
-export function isDescendantOf(obj: SourcemapObject, parent: SourcemapObject) {
-	if (obj === parent) return true;
-	while (obj.parent && obj.parent !== parent) {
-		obj = obj.parent;
+export namespace InstanceUtil {
+	export function isScript(instance: Instance) {
+		return (
+			instance.className === "ModuleScript" ||
+			instance.className === "LocalScript" ||
+			instance.className === "Script"
+		);
 	}
-	return obj.parent !== undefined;
-}
 
-export function isSubModule(obj: SourcemapObject) {
-	while (obj.parent) {
-		if (obj.parent.className === "ModuleScript") return obj.parent;
-		obj = obj.parent;
+	export function isDescendantOf(instance: Instance, parent: Instance) {
+		if (instance === parent) return true;
+		while (instance.parent && instance.parent !== parent) {
+			instance = instance.parent;
+		}
+		return instance.parent !== undefined;
 	}
-	return false;
-}
 
-export function getServiceName(obj: SourcemapObject) {
-	while (obj.parent) {
-		if (!obj.parent.parent) return obj.name;
-		obj = obj.parent;
+	export function getParentModule(instance: Instance) {
+		while (instance.parent) {
+			if (instance.parent.className === "ModuleScript") return instance.parent;
+			instance = instance.parent;
+		}
+		return false;
 	}
-}
 
-export function getFilePath(obj: SourcemapObject): string | undefined {
-	if (!obj.filePaths || obj.filePaths.length === 0) return;
-
-	for (const path of obj.filePaths) {
-		if (!path.endsWith(".json")) {
-			return path;
+	export function getService(instance: Instance) {
+		while (instance.parent) {
+			if (!instance.parent.parent) return instance.name;
+			instance = instance.parent;
 		}
 	}
-}
 
-export function getScripts(sourcemap: SourcemapObject) {
-	const scriptObjects: SourcemapObject[] = [];
+	export function getFilePath(instance: Instance): string | undefined {
+		if (!instance.filePaths || instance.filePaths.length === 0) return;
 
-	function iterate(object: SourcemapObject) {
-		for (const obj of object.children) {
-			if (isScript(obj)) {
-				scriptObjects.push(obj);
-			}
-
-			if (obj.children) {
-				iterate(obj);
+		for (const path of instance.filePaths) {
+			if (!path.endsWith(".json")) {
+				return path;
 			}
 		}
 	}
-	iterate(sourcemap);
+}
 
-	return scriptObjects;
+export namespace SourcemapUtil {
+	export function getScripts(sourcemap: Instance) {
+		const scriptObjects: Instance[] = [];
+
+		function iterate(object: Instance) {
+			for (const obj of object.children) {
+				if (InstanceUtil.isScript(obj)) {
+					scriptObjects.push(obj);
+				}
+
+				if (obj.children) {
+					iterate(obj);
+				}
+			}
+		}
+		iterate(sourcemap);
+
+		return scriptObjects;
+	}
 }
 
 export class SourcemapWatcher {
@@ -79,34 +88,42 @@ export class SourcemapWatcher {
 	}
 
 	private sourcemapChanged(text: string) {
-		let obj: SourcemapObject;
+		let sourcemap: Instance;
 		try {
-			obj = JSON.parse(text);
+			sourcemap = JSON.parse(text);
 		} catch (err) {
 			console.error("Failed to parse sourcemap JSON");
 			return;
 		}
 
-		const setupObj = (obj: SourcemapObject) => {
+		const setup = (instanace: Instance) => {
 			// normalize paths
-			if (obj.filePaths) {
-				for (const i in obj.filePaths) {
-					obj.filePaths[i] = obj.filePaths[i].replace(/\\/g, "\\").replace(/\//g, "\\"); // replace all '\\' with '\' & // replace all '/' with '\'
+			if (instanace.filePaths) {
+				for (const i in instanace.filePaths) {
+					instanace.filePaths[i] = instanace.filePaths[i].replace(/\\/g, "\\").replace(/\//g, "\\"); // replace all '\\' with '\' & // replace all '/' with '\'
 				}
 			}
 
 			// add parent property
-			if (obj.children) {
-				for (const child of obj.children) {
-					child.parent = obj;
-					setupObj(child);
+			if (instanace.children) {
+				for (const child of instanace.children) {
+					child.parent = instanace;
+					setup(child);
+				}
+			}
+
+			if (instanace.filePaths) {
+				for (const path of instanace.filePaths) {
+					if (path.endsWith(".lua") || path.endsWith(".luau")) {
+						instanace.mainFilePath = path;
+					}
 				}
 			}
 		};
-		setupObj(obj);
+		setup(sourcemap);
 
 		for (const listener of this.listeners) {
-			listener(obj);
+			listener(sourcemap);
 		}
 	}
 

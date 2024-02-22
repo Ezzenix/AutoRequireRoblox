@@ -1,11 +1,11 @@
-import { SourcemapObject, isDescendantOf } from "./sourcemap";
+import { Instance, InstanceUtil } from "./sourcemap";
 
-export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: SourcemapObject): string[] {
+export default function getGamePath(module: Instance, relativeTo?: Instance): string[] {
 	if (relativeTo === undefined) {
 		// ABSOLUTE PATH
 		let path = [];
 
-		let obj = moduleObj;
+		let obj = module;
 
 		while (true) {
 			if (!obj.parent) break; // root
@@ -28,9 +28,9 @@ export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: Sou
 		// RELATIVE PATH
 		let path = ["script"];
 
-		let obj = moduleObj;
+		let obj = module;
 
-		if (isDescendantOf(relativeTo, obj)) {
+		if (InstanceUtil.isDescendantOf(relativeTo, obj)) {
 			// .Parent spam
 			while (obj !== relativeTo) {
 				path.push("Parent");
@@ -38,16 +38,16 @@ export default function getGamePath(moduleObj: SourcemapObject, relativeTo?: Sou
 			}
 		} else {
 			// go up enough
-			while (!isDescendantOf(obj, relativeTo)) {
+			while (!InstanceUtil.isDescendantOf(obj, relativeTo)) {
 				path.push("Parent");
 				relativeTo = relativeTo.parent;
 			}
 
 			// go down to module
-			function iterate(v: SourcemapObject) {
+			function iterate(v: Instance) {
 				if (!v.children) return;
 				for (const child of v.children) {
-					if (isDescendantOf(obj, child)) {
+					if (InstanceUtil.isDescendantOf(obj, child)) {
 						path.push(child.name);
 						iterate(child);
 					}

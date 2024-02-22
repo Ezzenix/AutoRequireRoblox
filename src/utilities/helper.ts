@@ -1,6 +1,6 @@
 import { Position, Range, TextEdit } from "vscode";
-import { SourcemapObject, isDescendantOf, isSubModule } from "./sourcemap";
 import getGamePath from "./getGamePath";
+import { Instance, InstanceUtil } from "./sourcemap";
 
 function getLastCommentTagLine(source: string): number | undefined {
 	const lines = source.split("\n");
@@ -43,7 +43,7 @@ export function createGetServiceEdit(source: string, serviceName: string) {
 }
 
 // Modules
-export function isRequiringModule(source: string, moduleObj: SourcemapObject) {
+export function isRequiringModule(source: string, moduleObj: Instance) {
 	const lines = source.split("\n");
 	for (let i = 0; i < lines.length; i++) {
 		if (lines[i].startsWith(`local ${moduleObj.name} = require(`)) {
@@ -63,16 +63,16 @@ function getLastRequireLine(source: string): number | undefined {
 	return 0;
 }
 
-export function createRequireEdits(source: string, fromObj: SourcemapObject, moduleObj: SourcemapObject) {
+export function createRequireEdits(source: string, fromObj: Instance, moduleObj: Instance) {
 	const edits = [];
 
-	let relativeTo: SourcemapObject;
-	const isFromSubModule = isSubModule(fromObj);
-	const isModuleSubModule = isSubModule(moduleObj);
+	let relativeTo: Instance;
+	const isFromSubModule = InstanceUtil.getParentModule(fromObj);
+	const isModuleSubModule = InstanceUtil.getParentModule(moduleObj);
 	if (isFromSubModule && isModuleSubModule && isFromSubModule === isModuleSubModule) {
 		relativeTo = fromObj;
 	}
-	if (isDescendantOf(moduleObj, fromObj)) {
+	if (InstanceUtil.isDescendantOf(moduleObj, fromObj)) {
 		relativeTo = fromObj;
 	}
 	const path = getGamePath(moduleObj, relativeTo);

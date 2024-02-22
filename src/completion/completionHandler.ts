@@ -10,14 +10,7 @@ import {
 	languages,
 } from "vscode";
 import { Session } from "../session";
-import {
-	SourcemapObject,
-	getFilePath,
-	getScripts,
-	getServiceName,
-	isScript,
-	isSubModule,
-} from "../utilities/sourcemap";
+import { Instance, InstanceUtil, SourcemapUtil } from "../utilities/sourcemap";
 import {
 	createGetServiceEdit,
 	createRequireEdits,
@@ -48,16 +41,16 @@ export class CompletionHandler {
 		);
 	}
 
-	getSourcemapObjectFromDocument(document: TextDocument): SourcemapObject | undefined {
+	getInstanceFromDocument(document: TextDocument): Instance | undefined {
 		const documentPath = document.uri.fsPath.substring(this.session.workspacePath.length + 1);
 		const sourcemap = this.session.sourcemap;
 
-		let targetObj: SourcemapObject;
-		function iterate(object: SourcemapObject) {
+		let target: Instance;
+		function iterate(object: Instance) {
 			for (const obj of object.children) {
-				if (obj.filePaths && isScript(obj)) {
-					if (getFilePath(obj) === documentPath) {
-						targetObj = obj;
+				if (obj.filePaths && InstanceUtil.isScript(obj)) {
+					if (obj.mainFilePath === documentPath) {
+						target = obj;
 						break;
 					}
 				}
@@ -68,12 +61,12 @@ export class CompletionHandler {
 			}
 		}
 		iterate(sourcemap);
-		return targetObj;
+		return target;
 	}
 
-	canRequireEnvironment(scriptObj: SourcemapObject, targetObj: SourcemapObject) {
-		const scriptService = getServiceName(scriptObj);
-		const targetService = getServiceName(targetObj);
+	canRequireEnvironment(script: Instance, target: Instance) {
+		const scriptService = InstanceUtil.getService(script);
+		const targetService = InstanceUtil.getService(target);
 
 		const isScriptClient = CLIENT_SERVICES.includes(scriptService);
 		const isScriptServer = SERVER_SERVICES.includes(scriptService);
@@ -99,9 +92,9 @@ export class CompletionHandler {
 		const lastWord = matches ? matches[1].toLowerCase() : "";
 		if (!lastWord || lastWord.endsWith(".") || lastWord.endsWith(" ")) return;
 
-		const scriptObj = this.getSourcemapObjectFromDocument(document);
-		if (!scriptObj) return;
-		const scriptSubModule = isSubModule(scriptObj);
+		const script = this.getInstanceFromDocument(document);
+		if (!script) return;
+		const scriptSubModule = InstanceUtil.getParentModule(script);
 
 		const items: CompletionItem[] = [];
 
@@ -119,26 +112,26 @@ export class CompletionHandler {
 		}
 
 		// Modules
-		for (const obj of getScripts(sourcemap)) {
+		for (const obj of SourcemapUtil.getScripts(sourcemap)) {
 			// Check if module should be shown
 			if (obj.className !== "ModuleScript") continue;
-			if (obj === scriptObj) continue;
+			if (obj === script) continue;
 			if (obj.name.includes(" ")) continue; // no spaces in name
-			if (getFilePath(obj).startsWith("Packages\\_Index")) continue; // Wally packages index
+			if (obj.mainFilePath.startsWith("Packages\\_Index")) continue; // Wally packages index
 			if (!obj.name.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
 			if (isRequiringModule(source, obj)) continue;
-			if (!this.canRequireEnvironment(scriptObj, obj)) continue;
+			if (!this.canRequireEnvironment(script, obj)) continue;
 			if (this.session.configHandler.extensionConfig.storedValue.alwaysShowSubModules !== true) {
-				const objSubModule = isSubModule(obj);
-				if (objSubModule !== false && scriptSubModule !== objSubModule && objSubModule !== scriptObj) {
+				const objSubModule = InstanceUtil.getParentModule(obj);
+				if (objSubModule !== false && scriptSubModule !== objSubModule && objSubModule !== script) {
 					continue;
 				}
 			}
 
 			// Create completion item
 			let item = new CompletionItem(obj.name, CompletionItemKind.Module);
-			item.detail = `Require '${getFilePath(obj)}'`;
-			item.additionalTextEdits = createRequireEdits(source, scriptObj, obj);
+			item.detail = `Require '${obj.mainFilePath}'`;
+			item.additionalTextEdits = createRequireEdits(source, script, obj);
 			items.push(item);
 		}
 

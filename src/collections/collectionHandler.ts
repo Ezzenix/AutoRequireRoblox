@@ -1,6 +1,6 @@
 import { Session } from "../session";
 import { readFile, writeFile } from "../utilities/fsWrapper";
-import { SourcemapObject, getFilePath, getScripts } from "../utilities/sourcemap";
+import { Instance, InstanceUtil, SourcemapUtil } from "../utilities/sourcemap";
 
 const COLLECTION_FILE_IDENTIFIER = "--@AutoRequireCollection";
 
@@ -35,17 +35,17 @@ export class CollectionHandler {
 				`return {\n${requires.join(",\n")}\n}`
 			];
 
-			writeFile(`${this.session.workspacePath}\\${getFilePath(module)}`, lines.join("\n"));
+			writeFile(`${this.session.workspacePath}\\${InstanceUtil.getFilePath(module)}`, lines.join("\n"));
 		}
 	}
 
 	getCollectionModules() {
-		const modules: SourcemapObject[] = [];
+		const modules: Instance[] = [];
 
-		for (const script of getScripts(this.session.sourcemap)) {
+		for (const script of SourcemapUtil.getScripts(this.session.sourcemap)) {
 			if (script.className !== "ModuleScript") continue;
 
-			const moduleFilePath = getFilePath(script);
+			const moduleFilePath = InstanceUtil.getFilePath(script);
 			if (!moduleFilePath.endsWith("init.luau") && !moduleFilePath.endsWith("init.lua")) {
 				continue;
 			}

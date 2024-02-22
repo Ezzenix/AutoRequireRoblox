@@ -2,7 +2,7 @@ import { Disposable, ExtensionContext } from "vscode";
 import { CollectionHandler } from "../collections/collectionHandler";
 import { CompletionHandler } from "../completion/completionHandler";
 import { ConfigHandler } from "../config/configHandler";
-import { SourcemapObject, SourcemapWatcher } from "../utilities/sourcemap";
+import { Instance, SourcemapWatcher } from "../utilities/sourcemap";
 
 export class Session {
 	context: ExtensionContext;
@@ -12,7 +12,7 @@ export class Session {
 	completionHandler: CompletionHandler;
 	collectionHandler: CollectionHandler;
 
-	sourcemap: SourcemapObject;
+	sourcemap: Instance;
 
 	disposables: Disposable[];
 
