@@ -2,18 +2,6 @@ import { Position, Range, TextEdit } from "vscode";
 import getGamePath from "./getGamePath";
 import { Instance, InstanceUtil } from "./sourcemap";
 
-function countLeadingNewlines(input: string): number {
-	let count = 0;
-	for (let i = 0; i < input.length; i++) {
-		if (input[i] === "\n") {
-			count++;
-		} else {
-			break;
-		}
-	}
-	return count;
-}
-
 // Generic line serach function
 function getLastLineWhere(source: string, checker: (string) => boolean): [boolean, number] {
 	const lines = source.split("\n");
@@ -115,14 +103,5 @@ export function createRequireEdits(source: string, fromObj: Instance, moduleObj:
 	)}`;
 
 	edits.push(new TextEdit(new Range(new Position(line, 0), new Position(line, 0)), text));
-
-	//const line = Math.max(getLastGetServiceLine(source), lastGetRequireLine, getLastCommentTagLine(source));
-	//const range = new Range(new Position(line, 0), new Position(line, 0));
-	//const mainEdit = new TextEdit(
-	//	range,
-	//	`${lastGetRequireLine === 0 ? "\n" : ""}local ${moduleObj.name} = require(${path.join(".")})\n`
-	//);
-
-	//edits.push(mainEdit);
 	return edits;
 }
