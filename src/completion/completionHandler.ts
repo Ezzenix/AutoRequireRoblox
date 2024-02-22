@@ -25,6 +25,7 @@ export class CompletionHandler {
 	constructor(session: Session) {
 		this.session = session;
 
+		// Add completion providers
 		const srcPattern = new RelativePattern(this.session.workspacePath, "**/*");
 		const bind = this.provideCompletions.bind(this);
 		this.session.disposables.push(
@@ -41,6 +42,7 @@ export class CompletionHandler {
 		);
 	}
 
+	/* Gets the sourcemap instance object from a vscode document */
 	getInstanceFromDocument(document: TextDocument): Instance | undefined {
 		const documentPath = document.uri.fsPath.substring(this.session.workspacePath.length + 1);
 		const sourcemap = this.session.sourcemap;
@@ -64,20 +66,22 @@ export class CompletionHandler {
 		return target;
 	}
 
+	/* Checks if script can require target, based on client/server environment */
 	canRequireEnvironment(script: Instance, target: Instance) {
 		const scriptService = InstanceUtil.getService(script);
 		const targetService = InstanceUtil.getService(target);
 
-		const isScriptClient = CLIENT_SERVICES.includes(scriptService);
-		const isScriptServer = SERVER_SERVICES.includes(scriptService);
-		const isTargetClient = CLIENT_SERVICES.includes(targetService);
-		const isTargetServer = SERVER_SERVICES.includes(targetService);
+		const isScriptClient = CLIENT_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\client");
+		const isScriptServer = SERVER_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\server");
+		const isTargetClient = CLIENT_SERVICES.includes(targetService) || target.mainFilePath.startsWith("src\\client");
+		const isTargetServer = SERVER_SERVICES.includes(targetService) || target.mainFilePath.startsWith("src\\server");
 
 		if (!(isScriptClient || isScriptServer) && (isTargetClient || isTargetServer)) return false;
 		if ((isScriptClient && isTargetServer) || (isScriptServer && isTargetClient)) return false;
 		return true;
 	}
 
+	/* Main completion provider */
 	provideCompletions(
 		document: TextDocument,
 		position: Position,
@@ -100,8 +104,6 @@ export class CompletionHandler {
 
 		// Services
 		for (const serviceName of SERVICES) {
-			if (!serviceName.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
-
 			if (getServiceVariableName(source, serviceName)) continue;
 
 			// Create completion item
@@ -118,7 +120,6 @@ export class CompletionHandler {
 			if (obj === script) continue;
 			if (obj.name.includes(" ")) continue; // no spaces in name
 			if (obj.mainFilePath.startsWith("Packages\\_Index")) continue; // Wally packages index
-			if (!obj.name.toLowerCase().startsWith(lastWord.toLowerCase())) continue; // vs-code already does this, but its better to do it before all the calculations
 			if (isRequiringModule(source, obj)) continue;
 			if (!this.canRequireEnvironment(script, obj)) continue;
 			if (this.session.configHandler.extensionConfig.storedValue.alwaysShowSubModules !== true) {
