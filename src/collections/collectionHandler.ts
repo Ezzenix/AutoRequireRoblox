@@ -11,13 +11,14 @@ export class CollectionHandler {
 		this.session = session;
 	}
 
+	/* Updates all collection modules */
 	update() {
 		if (this.session.configHandler.extensionConfig.storedValue.enableModuleCollection !== true) return;
 
 		const modules = this.getCollectionModules();
 
 		for (const module of modules) {
-			let requires = [];
+			let requires: string[] = [];
 			for (const child of module.children) {
 				if (child.className !== "ModuleScript") continue;
 
@@ -27,6 +28,15 @@ export class CollectionHandler {
 					requires.push(`	${child.name} = require(script.${child.name})`);
 				}
 			}
+			requires.sort(function (a, b) {
+				if (a < b) {
+					return -1;
+				}
+				if (a > b) {
+					return 1;
+				}
+				return 0;
+			});
 
 			/* prettier-ignore */
 			const lines = [
@@ -35,10 +45,15 @@ export class CollectionHandler {
 				`return {\n${requires.join(",\n")}\n}`
 			];
 
+			const filePath = `${this.session.workspacePath}\\${InstanceUtil.getFilePath(module)}`;
+			const newSource = lines.join("\n");
+			const currentSource = readFile(filePath, true);
+			if (currentSource === newSource) continue;
 			writeFile(`${this.session.workspacePath}\\${InstanceUtil.getFilePath(module)}`, lines.join("\n"));
 		}
 	}
 
+	/* Gets all module instances that are collections */
 	getCollectionModules() {
 		const modules: Instance[] = [];
 
