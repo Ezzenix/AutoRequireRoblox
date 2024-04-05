@@ -51,7 +51,7 @@ export class CompletionHandler {
 		function iterate(object: Instance) {
 			for (const obj of object.children) {
 				if (obj.filePaths && InstanceUtil.isScript(obj)) {
-					if (obj.mainFilePath === documentPath) {
+					if (obj.mainFilePath.toLowerCase() === documentPath.toLowerCase()) {
 						target = obj;
 						break;
 					}
