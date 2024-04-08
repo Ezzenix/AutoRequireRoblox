@@ -66,13 +66,38 @@ export class CompletionHandler {
 		return target;
 	}
 
+	/*
+		Checks if document has --!server or --!client tag
+		Returns booleans for [hasServer, hasClient]
+	*/
+	hasEnvironmentTag(document: TextDocument): [boolean, boolean] {
+		const text = document.getText();
+
+		let hasServer = false;
+		let hasClient = false;
+
+		for (const line of text.split("\n")) {
+			if (!hasServer && line.startsWith("--!server")) {
+				hasServer = true;
+			} else if (!hasClient && line.startsWith("--!client")) {
+				hasClient = true;
+			}
+		}
+
+		return [hasServer, hasClient];
+	}
+
 	/* Checks if script can require target, based on client/server environment */
-	canRequireEnvironment(script: Instance, target: Instance) {
+	canRequireEnvironment(script: Instance, target: Instance, document: TextDocument) {
 		const scriptService = InstanceUtil.getService(script);
 		const targetService = InstanceUtil.getService(target);
 
-		const isScriptClient = CLIENT_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\client");
-		const isScriptServer = SERVER_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\server");
+		const [hasServerTag, hasClientTag] = this.hasEnvironmentTag(document);
+
+		const isScriptClient =
+			CLIENT_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\client") || hasClientTag;
+		const isScriptServer =
+			SERVER_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\server") || hasServerTag;
 		const isTargetClient = CLIENT_SERVICES.includes(targetService) || target.mainFilePath.startsWith("src\\client");
 		const isTargetServer = SERVER_SERVICES.includes(targetService) || target.mainFilePath.startsWith("src\\server");
 
@@ -121,7 +146,7 @@ export class CompletionHandler {
 			if (obj.name.includes(" ")) continue; // no spaces in name
 			if (obj.mainFilePath.startsWith("Packages\\_Index")) continue; // Wally packages index
 			if (isRequiringModule(source, obj)) continue;
-			if (!this.canRequireEnvironment(script, obj)) continue;
+			if (!this.canRequireEnvironment(script, obj, document)) continue;
 			if (this.session.configHandler.extensionConfig.storedValue.alwaysShowSubModules !== true) {
 				const objSubModule = InstanceUtil.getParentModule(obj);
 				if (objSubModule !== false && scriptSubModule !== objSubModule && objSubModule !== script) {
