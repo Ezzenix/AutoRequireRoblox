@@ -1,7 +1,7 @@
 import { FileSystemWatcher, workspace } from "vscode";
 import { readFile } from "../utilities/fsWrapper";
 
-type ListenerCallback = (data: any) => any;
+type ListenerCallback<T> = (data: T) => any;
 
 function reconcile(value: any, template: any): any {
 	if (typeof value !== "object" || typeof template !== "object" || value === null || template === null) {
@@ -29,15 +29,15 @@ function reconcile(value: any, template: any): any {
 	return reconciled;
 }
 
-export class ConfigReader {
+export class ConfigReader<T> {
 	path: string;
-	storedValue?: any;
+	storedValue?: T;
 	watcher?: FileSystemWatcher;
-	defaultValue: any;
-	callback: ListenerCallback;
+	defaultValue: T;
+	callback: ListenerCallback<T>;
 	doReconcile: boolean;
 
-	constructor(path?: string, defaultValue?: any, reconcile?: boolean) {
+	constructor(path?: string, defaultValue?: T, reconcile?: boolean) {
 		this.defaultValue = defaultValue;
 		this.doReconcile = reconcile === true;
 
@@ -54,7 +54,7 @@ export class ConfigReader {
 				if (this.defaultValue && this.doReconcile) {
 					json = reconcile(json, this.defaultValue);
 				}
-				this.storedValue = json;
+				this.storedValue = json as T;
 			} else if (this.defaultValue) {
 				this.storedValue = this.defaultValue;
 			}
@@ -68,7 +68,7 @@ export class ConfigReader {
 	}
 
 	/** Provide a callback for when the configuration content changes */
-	onDidChange(callback: ListenerCallback) {
+	onDidChange(callback: ListenerCallback<T>) {
 		this.callback = callback;
 		callback(this.storedValue); // call at startup
 	}

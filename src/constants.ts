@@ -7,7 +7,7 @@ if (!defaultConfig) {
 	throw new Error("Couldn't read default configuration");
 }
 
-export const DEFAULT_CONFIG = defaultConfig;
+export const DEFAULT_CONFIG = defaultConfig as Object;
 export const COLLECTION_FILE_IDENTIFIER = "--@AutoRequireCollection";
 
 export const SERVICES = [

@@ -67,39 +67,63 @@ export class CompletionHandler {
 	}
 
 	/*
-		Checks if document has --!server or --!client tag
-		Returns booleans for [hasServer, hasClient]
+		Checks if document is forced server or client environment
+		Returns booleans for [isServer, isClient]
 	*/
-	hasEnvironmentTag(document: TextDocument): [boolean, boolean] {
-		const text = document.getText();
+	isInEnvironmentConfig(script: Instance): [boolean, boolean] {
+		const config = this.session.configHandler.extensionConfig.storedValue;
+		if (!config) return [false, false];
 
-		let hasServer = false;
-		let hasClient = false;
+		const scriptPath = script.mainFilePath.toLowerCase();
 
-		for (const line of text.split("\n")) {
-			if (!hasServer && line.startsWith("--!server")) {
-				hasServer = true;
-			} else if (!hasClient && line.startsWith("--!client")) {
-				hasClient = true;
+		let isServer = false;
+		let isClient = false;
+
+		const isIn = (directories: string[]) => {
+			for (const v of directories) {
+				if (scriptPath.startsWith(v.toLowerCase().replace(/\//g, "\\"))) {
+					return true;
+				}
 			}
+			return false;
+		};
+
+		if (config.serverDirectories) {
+			isServer = isIn(config.serverDirectories);
+		}
+		if (config.clientDirectories) {
+			isClient = isIn(config.clientDirectories);
 		}
 
-		return [hasServer, hasClient];
+		return [isServer, isClient];
 	}
 
 	/* Checks if script can require target, based on client/server environment */
-	canRequireEnvironment(script: Instance, target: Instance, document: TextDocument) {
+	canRequireEnvironment(script: Instance, target: Instance) {
 		const scriptService = InstanceUtil.getService(script);
 		const targetService = InstanceUtil.getService(target);
 
-		const [hasServerTag, hasClientTag] = this.hasEnvironmentTag(document);
+		const [isScriptForcedServer, isScriptForcedClient] = this.isInEnvironmentConfig(script);
+		if (isScriptForcedServer && isScriptForcedClient) return true;
+
+		const [isTargetForcedServer, isTargetForcedClient] = this.isInEnvironmentConfig(script);
 
 		const isScriptClient =
-			CLIENT_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\client") || hasClientTag;
+			CLIENT_SERVICES.includes(scriptService) ||
+			script.mainFilePath.startsWith("src\\client") ||
+			isScriptForcedClient;
 		const isScriptServer =
-			SERVER_SERVICES.includes(scriptService) || script.mainFilePath.startsWith("src\\server") || hasServerTag;
-		const isTargetClient = CLIENT_SERVICES.includes(targetService) || target.mainFilePath.startsWith("src\\client");
-		const isTargetServer = SERVER_SERVICES.includes(targetService) || target.mainFilePath.startsWith("src\\server");
+			SERVER_SERVICES.includes(scriptService) ||
+			script.mainFilePath.startsWith("src\\server") ||
+			isScriptForcedServer;
+		const isTargetClient =
+			CLIENT_SERVICES.includes(targetService) ||
+			target.mainFilePath.startsWith("src\\client") ||
+			isTargetForcedClient;
+		const isTargetServer =
+			SERVER_SERVICES.includes(targetService) ||
+			target.mainFilePath.startsWith("src\\server") ||
+			isTargetForcedServer;
 
 		if (!(isScriptClient || isScriptServer) && (isTargetClient || isTargetServer)) return false;
 		if ((isScriptClient && isTargetServer) || (isScriptServer && isTargetClient)) return false;
@@ -146,7 +170,7 @@ export class CompletionHandler {
 			if (obj.name.includes(" ")) continue; // no spaces in name
 			if (obj.mainFilePath.startsWith("Packages\\_Index")) continue; // Wally packages index
 			if (isRequiringModule(source, obj)) continue;
-			if (!this.canRequireEnvironment(script, obj, document)) continue;
+			if (!this.canRequireEnvironment(script, obj)) continue;
 			if (this.session.configHandler.extensionConfig.storedValue.alwaysShowSubModules !== true) {
 				const objSubModule = InstanceUtil.getParentModule(obj);
 				if (objSubModule !== false && scriptSubModule !== objSubModule && objSubModule !== script) {
