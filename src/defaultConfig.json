@@ -1,4 +1,7 @@
 {
 	"enableModuleCollection": true,
-	"alwaysShowSubModules": false
+	"alwaysShowSubModules": false,
+
+	"serverDirectories": [],
+	"clientDirectories": []
 }
