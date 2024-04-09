@@ -46,6 +46,7 @@ export class CompletionHandler {
 	getInstanceFromDocument(document: TextDocument): Instance | undefined {
 		const documentPath = document.uri.fsPath.substring(this.session.workspacePath.length + 1);
 		const sourcemap = this.session.sourcemap;
+		if (!sourcemap) return;
 
 		let target: Instance;
 		function iterate(object: Instance) {
@@ -80,9 +81,11 @@ export class CompletionHandler {
 		let isClient = false;
 
 		const isIn = (directories: string[]) => {
-			for (const v of directories) {
-				if (scriptPath.startsWith(v.toLowerCase().replace(/\//g, "\\"))) {
-					return true;
+			if (typeof directories === "object") {
+				for (const v of directories) {
+					if (scriptPath.startsWith(v.toLowerCase().replace(/\//g, "\\"))) {
+						return true;
+					}
 				}
 			}
 			return false;

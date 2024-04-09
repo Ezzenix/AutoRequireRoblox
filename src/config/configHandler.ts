@@ -25,6 +25,8 @@ export class ConfigHandler {
 		this.extensionConfig.onDidChange((data) => {
 			if (!data) return;
 
+			console.log(data);
+
 			this.session.collectionHandler?.update();
 		});
 

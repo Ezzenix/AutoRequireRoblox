@@ -54,6 +54,7 @@ export class ConfigReader<T> {
 				if (this.defaultValue && this.doReconcile) {
 					json = reconcile(json, this.defaultValue);
 				}
+				console.log("json", json);
 				this.storedValue = json as T;
 			} else if (this.defaultValue) {
 				this.storedValue = this.defaultValue;

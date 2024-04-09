@@ -1,13 +1,8 @@
-import { join } from "path";
-import { readFile } from "./utilities/fsWrapper";
+export const DEFAULT_CONFIG = {
+	enableModuleCollection: true,
+	alwaysShowSubModules: false,
+};
 
-const defaultConfigPath = join(__dirname, "..", "src", "defaultConfig.json");
-const defaultConfig = readFile(defaultConfigPath);
-if (!defaultConfig) {
-	throw new Error("Couldn't read default configuration");
-}
-
-export const DEFAULT_CONFIG = defaultConfig as Object;
 export const COLLECTION_FILE_IDENTIFIER = "--@AutoRequireCollection";
 
 export const SERVICES = [
