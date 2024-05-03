@@ -28,21 +28,14 @@ export class CollectionHandler {
 					requires.push(`	${child.name} = require(script.${child.name})`);
 				}
 			}
-			requires.sort(function (a, b) {
-				if (a < b) {
-					return -1;
-				}
-				if (a > b) {
-					return 1;
-				}
-				return 0;
-			});
+			requires.sort();
 
 			/* prettier-ignore */
 			const lines = [
 				COLLECTION_FILE_IDENTIFIER,
 				``,
-				`return {\n${requires.join(",\n")}\n}`
+				`return {\n${requires.join(",\n")}\n}`,
+				``
 			];
 
 			const filePath = `${this.session.workspacePath}\\${InstanceUtil.getFilePath(module)}`;
