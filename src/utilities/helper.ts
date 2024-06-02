@@ -57,6 +57,16 @@ export function isRequiringModule(source: string, moduleObj: Instance) {
 	return getLastLineWhere(source, (line) => line.startsWith(`local ${moduleObj.name} = require(`))[0];
 }
 
+function joinPath(path: string[]): string {
+	return path.reduce((acc, str) => {
+		if (str.includes(" ")) {
+			return `${acc}["${str}"]`;
+		} else {
+			return acc ? `${acc}.${str}` : str;
+		}
+	}, "");
+}
+
 export function createRequireEdits(source: string, fromObj: Instance, moduleObj: Instance) {
 	const edits = [];
 
@@ -98,7 +108,7 @@ export function createRequireEdits(source: string, fromObj: Instance, moduleObj:
 	let newLinesAfter = 1;
 	if (!hasRequireLine) newLinesAfter = 2;
 
-	const text = `${"\n".repeat(newLinesBefore)}local ${moduleObj.name} = require(${path.join(".")})${"\n".repeat(
+	const text = `${"\n".repeat(newLinesBefore)}local ${moduleObj.name} = require(${joinPath(path)})${"\n".repeat(
 		newLinesAfter
 	)}`;
 
