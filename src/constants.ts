@@ -45,6 +45,9 @@ export const SERVICES = [
 	"VRService",
 	"UserInputService",
 	"SocialService",
+	"StudioService",
+	"ScriptEditorService",
+	"TestService",
 ];
 
 export const CLIENT_SERVICES = ["StarterPlayer", "StarterGui"];
