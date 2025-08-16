@@ -58,9 +58,7 @@ export class CompletionHandler {
 					}
 				}
 
-				if (obj.children) {
-					iterate(obj);
-				}
+				iterate(obj);
 			}
 		}
 		iterate(sourcemap);

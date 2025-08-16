@@ -7,7 +7,7 @@ export type Instance = {
 	filePaths?: string[];
 	mainFilePath: string;
 	parent?: Instance;
-	children?: Instance[];
+	children: Instance[];
 };
 
 type SourcemapListener = (sourcemap: Instance) => void;
@@ -65,9 +65,7 @@ export namespace SourcemapUtil {
 					scriptObjects.push(obj);
 				}
 
-				if (obj.children) {
-					iterate(obj);
-				}
+				iterate(obj);
 			}
 		}
 		iterate(sourcemap);
@@ -100,26 +98,25 @@ export class SourcemapWatcher {
 			// normalize paths
 			if (instanace.filePaths) {
 				for (const i in instanace.filePaths) {
-					instanace.filePaths[i] = instanace.filePaths[i].replace(/\\/g, "\\").replace(/\//g, "\\"); // replace all '\\' with '\' & // replace all '/' with '\'
-				}
-			}
-
-			// add parent property
-			if (instanace.children) {
-				for (const child of instanace.children) {
-					child.parent = instanace;
-					setup(child);
-				}
-			}
-
-			if (instanace.filePaths) {
-				for (const path of instanace.filePaths) {
+					const path = instanace.filePaths[i].replace(/\\/g, "\\").replace(/\//g, "\\"); // replace all '\\' with '\' & // replace all '/' with '\'
+					instanace.filePaths[i] = path;
 					if (path.endsWith(".lua") || path.endsWith(".luau")) {
 						instanace.mainFilePath = path;
 					}
 				}
 			}
+
+			if (!instanace.children) {
+				instanace.children = [];
+			}
+
+			// add parent property
+			for (const child of instanace.children) {
+				child.parent = instanace;
+				setup(child);
+			}
 		};
+
 		setup(sourcemap);
 
 		for (const listener of this.listeners) {

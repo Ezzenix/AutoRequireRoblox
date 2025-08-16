@@ -45,7 +45,6 @@ export default function getGamePath(module: Instance, relativeTo?: Instance): st
 
 			// go down to module
 			function iterate(v: Instance) {
-				if (!v.children) return;
 				for (const child of v.children) {
 					if (InstanceUtil.isDescendantOf(obj, child)) {
 						path.push(child.name);
