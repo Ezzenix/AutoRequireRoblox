@@ -10,7 +10,7 @@ Automatically requires all child modules of a module. To create one you put `--@
 
 Collections are updated automatically when new files are created or deleted. But they can also be updated manually with the `AutoRequire: Update all collections` command in the command palette.
 
-<img src="assets/Collection2.png" width="80%" />
+<img src="assets/Collection.png" width="60%" />
 
 ## Install
 * Setup [Rojo](https://rojo.space/) in your project if you haven't already, it is required.
