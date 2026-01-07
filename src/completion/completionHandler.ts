@@ -138,8 +138,19 @@ export class CompletionHandler {
 			}
 
 			// Create completion item
-			let item = new CompletionItem(obj.name, CompletionItemKind.Module);
-			item.detail = `Require '${obj.mainFilePath}'`;
+			const parsedPath = path.parse(obj.mainFilePath);
+			const displayPath = path
+				.join(parsedPath.dir, parsedPath.name)
+				.replace(new RegExp(`[\\\\/]init$`), "")
+				.replace(/\\/g, "/");
+
+			let item = new CompletionItem(
+				{
+					label: obj.name,
+					description: displayPath,
+				},
+				CompletionItemKind.Module
+			);
 			item.additionalTextEdits = createRequireEdits(source, script, obj);
 			items.push(item);
 		}
