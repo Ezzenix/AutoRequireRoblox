@@ -35,11 +35,9 @@ export class ConfigReader<T> {
 	watcher?: FileSystemWatcher;
 	defaultValue: T;
 	callback: ListenerCallback<T>;
-	doReconcile: boolean;
 
-	constructor(path?: string, defaultValue?: T, reconcile?: boolean) {
+	constructor(path?: string, defaultValue?: T) {
 		this.defaultValue = defaultValue;
-		this.doReconcile = reconcile === true;
 
 		if (path) {
 			this.setPath(path);
@@ -51,10 +49,6 @@ export class ConfigReader<T> {
 		try {
 			let json = readFile(this.path);
 			if (json) {
-				if (this.defaultValue && this.doReconcile) {
-					json = reconcile(json, this.defaultValue);
-				}
-				console.log("json", json);
 				this.storedValue = json as T;
 			} else if (this.defaultValue) {
 				this.storedValue = this.defaultValue;

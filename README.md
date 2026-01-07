@@ -22,3 +22,6 @@ You can create a config file `.autorequire.json` by running the `AutoRequire: Cr
 |-|-|-|
 |enableModuleCollection|Should module collections be enabled|true|
 |alwaysShowSubModules|Should sub modules always be shown in autocomplete|false|
+|ignoreEnvironment|Disable environment detection and allow any module|false|
+|clientDirectories|Array of directories to always detect as client||
+|serverDirectories|Array of directories to always detect as server||

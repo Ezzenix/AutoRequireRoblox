@@ -1,5 +1,16 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import path = require("path");
 import { window } from "vscode";
+import { Session } from "../session";
+import { CLIENT_SERVICES, SERVER_SERVICES } from "../constants";
+import { writeFileSync } from "fs";
+
+export enum Environment {
+	SERVER = "SERVER",
+	CLIENT = "CLIENT",
+	SHARED = "SHARED",
+	BOTH = "BOTH",
+}
 
 export type Instance = {
 	name: string;
@@ -8,6 +19,7 @@ export type Instance = {
 	mainFilePath: string;
 	parent?: Instance;
 	children: Instance[];
+	environment: Environment;
 };
 
 type SourcemapListener = (sourcemap: Instance) => void;
@@ -75,14 +87,16 @@ export namespace SourcemapUtil {
 }
 
 export class SourcemapWatcher {
+	private session: Session;
 	private rootPath: string;
 	private process: ChildProcessWithoutNullStreams;
 	private listeners: SourcemapListener[];
 
-	constructor(rootPath: string) {
+	constructor(session: Session, rootPath: string) {
+		this.session = session;
 		this.rootPath = rootPath;
 		this.listeners = [];
-		this.startProcess();
+		this.reload();
 	}
 
 	private sourcemapChanged(text: string) {
@@ -94,26 +108,50 @@ export class SourcemapWatcher {
 			return;
 		}
 
-		const setup = (instanace: Instance) => {
+		const setup = (instance: Instance) => {
 			// normalize paths
-			if (instanace.filePaths) {
-				for (const i in instanace.filePaths) {
-					const path = instanace.filePaths[i].replace(/\\/g, "\\").replace(/\//g, "\\"); // replace all '\\' with '\' & // replace all '/' with '\'
-					instanace.filePaths[i] = path;
-					if (path.endsWith(".lua") || path.endsWith(".luau")) {
-						instanace.mainFilePath = path;
+			if (instance.filePaths) {
+				for (const i in instance.filePaths) {
+					const filePath = path.normalize(instance.filePaths[i]);
+					instance.filePaths[i] = filePath;
+					if (filePath.endsWith(".lua") || filePath.endsWith(".luau")) {
+						instance.mainFilePath = filePath;
 					}
 				}
 			}
 
-			if (!instanace.children) {
-				instanace.children = [];
-			}
+			if (!instance.children) instance.children = [];
 
 			// add parent property
-			for (const child of instanace.children) {
-				child.parent = instanace;
+			for (const child of instance.children) {
+				child.parent = instance;
 				setup(child);
+			}
+
+			// compute environment
+			const config = this.session.configHandler.extensionConfig.storedValue;
+			const service = InstanceUtil.getService(instance);
+			const normalizedPath = instance.mainFilePath?.toLowerCase();
+
+			const isServerDir = config?.serverDirectories?.some((dir) => normalizedPath?.startsWith(dir.toLowerCase()));
+			const isClientDir = config?.clientDirectories?.some((dir) => normalizedPath?.startsWith(dir.toLowerCase()));
+
+			if (isServerDir && isClientDir) {
+				instance.environment = Environment.BOTH;
+			} else if (isServerDir) {
+				instance.environment = Environment.SERVER;
+			} else if (isClientDir) {
+				instance.environment = Environment.CLIENT;
+			} else {
+				const isServer =
+					SERVER_SERVICES.includes(service) || normalizedPath?.startsWith(path.normalize("src/server"));
+
+				const isClient =
+					CLIENT_SERVICES.includes(service) || normalizedPath?.startsWith(path.normalize("src/client"));
+
+				if (isServer) instance.environment = Environment.SERVER;
+				else if (isClient) instance.environment = Environment.CLIENT;
+				else instance.environment = Environment.SHARED;
 			}
 		};
 
@@ -124,7 +162,7 @@ export class SourcemapWatcher {
 		}
 	}
 
-	private startProcess() {
+	reload() {
 		this.dispose();
 
 		this.process = spawn("rojo", ["sourcemap", "--watch"], { cwd: this.rootPath });
@@ -139,7 +177,9 @@ export class SourcemapWatcher {
 		});
 
 		this.process.on("exit", (code) => {
-			console.log(`rojo sourcemap process exited with code ${code}`);
+			if (code) {
+				console.log(`rojo sourcemap process exited with code ${code}`);
+			}
 		});
 	}
 

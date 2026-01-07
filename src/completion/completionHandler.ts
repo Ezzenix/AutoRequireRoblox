@@ -10,7 +10,7 @@ import {
 	languages,
 } from "vscode";
 import { Session } from "../session";
-import { Instance, InstanceUtil, SourcemapUtil } from "../utilities/sourcemap";
+import { Environment, Instance, InstanceUtil, SourcemapUtil } from "../utilities/sourcemap";
 import {
 	createGetServiceEdit,
 	createRequireEdits,
@@ -18,6 +18,7 @@ import {
 	isRequiringModule,
 } from "../utilities/helper";
 import { CLIENT_SERVICES, SERVER_SERVICES, SERVICES } from "../constants";
+import path = require("path");
 
 export class CompletionHandler {
 	session: Session;
@@ -44,7 +45,7 @@ export class CompletionHandler {
 
 	/* Gets the sourcemap instance object from a vscode document */
 	getInstanceFromDocument(document: TextDocument): Instance | undefined {
-		const documentPath = document.uri.fsPath.substring(this.session.workspacePath.length + 1);
+		const documentPath = path.normalize(document.uri.fsPath.substring(this.session.workspacePath.length + 1));
 		const sourcemap = this.session.sourcemap;
 		if (!sourcemap) return;
 
@@ -65,70 +66,27 @@ export class CompletionHandler {
 		return target;
 	}
 
-	/*
-		Checks if document is forced server or client environment
-		Returns booleans for [isServer, isClient]
-	*/
-	isInEnvironmentConfig(script: Instance): [boolean, boolean] {
-		const config = this.session.configHandler.extensionConfig.storedValue;
-		if (!config) return [false, false];
-
-		const scriptPath = script.mainFilePath.toLowerCase();
-
-		let isServer = false;
-		let isClient = false;
-
-		const isIn = (directories: string[]) => {
-			if (typeof directories === "object") {
-				for (const v of directories) {
-					if (scriptPath.startsWith(v.toLowerCase().replace(/\//g, "\\"))) {
-						return true;
-					}
-				}
-			}
-			return false;
-		};
-
-		if (config.serverDirectories) {
-			isServer = isIn(config.serverDirectories);
-		}
-		if (config.clientDirectories) {
-			isClient = isIn(config.clientDirectories);
-		}
-
-		return [isServer, isClient];
-	}
-
 	/* Checks if script can require target, based on client/server environment */
-	canRequireEnvironment(script: Instance, target: Instance) {
-		const scriptService = InstanceUtil.getService(script);
-		const targetService = InstanceUtil.getService(target);
+	canRequire(script: Instance, target: Instance) {
+		if (this.session.configHandler.extensionConfig.storedValue.ignoreEnvironment) return true;
 
-		const [isScriptForcedServer, isScriptForcedClient] = this.isInEnvironmentConfig(script);
-		if (isScriptForcedServer && isScriptForcedClient) return true;
+		if (script.environment === Environment.BOTH) {
+			return true;
+		}
 
-		const [isTargetForcedServer, isTargetForcedClient] = this.isInEnvironmentConfig(script);
+		if (script.environment === Environment.SHARED) {
+			return target.environment === Environment.SHARED;
+		}
 
-		const isScriptClient =
-			CLIENT_SERVICES.includes(scriptService) ||
-			script.mainFilePath.startsWith("src\\client") ||
-			isScriptForcedClient;
-		const isScriptServer =
-			SERVER_SERVICES.includes(scriptService) ||
-			script.mainFilePath.startsWith("src\\server") ||
-			isScriptForcedServer;
-		const isTargetClient =
-			CLIENT_SERVICES.includes(targetService) ||
-			target.mainFilePath.startsWith("src\\client") ||
-			isTargetForcedClient;
-		const isTargetServer =
-			SERVER_SERVICES.includes(targetService) ||
-			target.mainFilePath.startsWith("src\\server") ||
-			isTargetForcedServer;
+		if (script.environment === Environment.CLIENT) {
+			return target.environment === Environment.CLIENT || target.environment === Environment.SHARED;
+		}
 
-		if (!(isScriptClient || isScriptServer) && (isTargetClient || isTargetServer)) return false;
-		if ((isScriptClient && isTargetServer) || (isScriptServer && isTargetClient)) return false;
-		return true;
+		if (script.environment === Environment.SERVER) {
+			return target.environment === Environment.SERVER || target.environment === Environment.SHARED;
+		}
+
+		return false;
 	}
 
 	/* Main completion provider */
@@ -171,7 +129,7 @@ export class CompletionHandler {
 			if (obj.name.includes(" ")) continue; // no spaces in name
 			if (obj.mainFilePath.startsWith("Packages\\_Index")) continue; // Wally packages index
 			if (isRequiringModule(source, obj)) continue;
-			if (!this.canRequireEnvironment(script, obj)) continue;
+			if (!this.canRequire(script, obj)) continue;
 			if (this.session.configHandler.extensionConfig.storedValue.alwaysShowSubModules !== true) {
 				const objSubModule = InstanceUtil.getParentModule(obj);
 				if (objSubModule !== false && scriptSubModule !== objSubModule && objSubModule !== script) {

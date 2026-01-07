@@ -1,6 +1,9 @@
 export const DEFAULT_CONFIG = {
 	enableModuleCollection: true,
 	alwaysShowSubModules: false,
+	ignoreEnvironment: false,
+	clientDirectories: [],
+	serverDirectories: [],
 };
 
 export const COLLECTION_FILE_IDENTIFIER = "--@AutoRequireCollection";

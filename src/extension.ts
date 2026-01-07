@@ -21,7 +21,7 @@ export function activate(context: ExtensionContext) {
 				return window.showErrorMessage(`Configuration already exists at ${configPath}`);
 			}
 
-			if (writeFile(configPath, JSON.stringify(DEFAULT_CONFIG))) {
+			if (writeFile(configPath, JSON.stringify(DEFAULT_CONFIG, null, 4))) {
 				const uri = Uri.file(configPath);
 				if (uri) {
 					window.showTextDocument(uri);
@@ -36,9 +36,9 @@ export function activate(context: ExtensionContext) {
 		})
 	);
 
-	console.log("auto-require-roblox activated");
+	console.log("auto-require-roblox activated!");
 }
 
 export function deactivate() {
-	console.log("auto-require-roblox deactivated");
+	console.log("auto-require-roblox deactivated!");
 }
