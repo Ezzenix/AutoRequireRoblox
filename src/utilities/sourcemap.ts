@@ -173,7 +173,7 @@ export class SourcemapWatcher {
 
 		this.process.stderr.on("data", (data) => {
 			console.error(`Error from sourcemap watcher: ${data.toString()}`);
-			window.showErrorMessage(`Error from sourcemap watcher: ${data.toString()}`);
+			//window.showErrorMessage(`Error from sourcemap watcher: ${data.toString()}`);
 		});
 
 		this.process.on("exit", (code) => {
